@@ -1,0 +1,81 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Spring Boot 3.3.0, Java 21, Maven, MySQL 8, Flyway, JPA/Hibernate.
+  Architecture: Layered REST API with DTOs, MapStruct mappers, JPA repositories, tenant isolation via TenantContext.
+  Security: JWT (jjwt 0.12.5), Spring Security, RBAC, x-restaurant-id tenant header.
+  Real-time: WebSocket/STOMP for order events.
+  Testing: JUnit 5, Mockito, AssertJ, Spring Boot Test, Testcontainers MySQL, H2 for test scope.
+  Docs: OpenAPI/SpringDoc 2.5.0; migrations in db/migration.
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Flag financial or tenant-isolation changes for judgment double review
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Mark financial invariants with INV- prefix and reference ADR-005
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+    - Address tenant isolation and RBAC for every new endpoint
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+    - Forecast changed lines and chained-PR need against 400-line budget
+  apply:
+    - Follow existing code patterns (Controller -> Service -> Repository -> Model)
+    - Maintain Flyway migration numbering in db/migration
+    - Map generated IDs as UUID strings
+    tdd: true
+    test_command: "cd /home/desarrollo/github/Tacosoft && mvn -f backend/pom.xml test"
+  verify:
+    test_command: "cd /home/desarrollo/github/Tacosoft && mvn -f backend/pom.xml test"
+    build_command: "cd /home/desarrollo/github/Tacosoft && mvn -f backend/pom.xml clean verify"
+    coverage_threshold: 0.10
+  archive:
+    - Warn before merging destructive deltas
+    - Update OpenAPI annotations when endpoints change
+
+testing:
+  strict_tdd: true
+  runner:
+    command: "cd /home/desarrollo/github/Tacosoft && mvn -f backend/pom.xml test"
+    framework: "JUnit 5 (Jupiter) via spring-boot-starter-test"
+  layers:
+    unit:
+      available: true
+      tool: "JUnit 5 + Mockito + AssertJ; runs on H2 with profile 'test'"
+    integration:
+      available: true
+      tool: "Spring Boot Test + MockMvc + Testcontainers MySQL; tagged with @Tag(\"integration\")"
+      requirements: "Docker daemon running or DB_URL/DB_USER/DB_PASS env vars pointing to local MySQL"
+      run_command: "cd /home/desarrollo/github/Tacosoft && mvn -f backend/pom.xml verify -DskipITs=false"
+    e2e:
+      available: false
+      tool: null
+  coverage:
+    available: true
+    command: "cd /home/desarrollo/github/Tacosoft && mvn -f backend/pom.xml test jacoco:report"
+    tool: "JaCoCo 0.8.11 with 10% LINE minimum (raise as integration tests are enabled)"
+    report_path: "backend/target/site/jacoco/index.html"
+  quality:
+    linter:
+      available: false
+      command: null
+    formatter:
+      available: true
+      command: "cd /home/desarrollo/github/Tacosoft && mvn -f backend/pom.xml spotless:apply"
+      tool: "Spotless 2.43.0 with google-java-format 1.22.0 (AOSP style)"
+    type_checker:
+      available: true
+      command: "cd /home/desarrollo/github/Tacosoft && mvn -f backend/pom.xml compile"
+      tool: "javac via Maven compiler plugin"
+    type_checker:
+      available: true
+      command: "cd backend && ./mvnw compile"
+      tool: "javac via Maven compiler plugin"
+    formatter:
+      available: false
+      command: null

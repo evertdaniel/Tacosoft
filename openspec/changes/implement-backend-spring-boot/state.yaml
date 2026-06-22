@@ -1,0 +1,57 @@
+change: implement-backend-spring-boot
+title: Implement Spring Boot 3 Backend for Restaurant Management System
+status: proposed
+created: 2026-06-21
+artifactStore: openspec
+
+phases:
+  - name: proposal
+    status: complete
+    artifact: proposal.md
+  - name: spec
+    status: complete
+    artifact: specs/
+  - name: design
+    status: complete
+    artifact: design.md
+  - name: tasks
+    status: complete
+    artifact: tasks.md
+  - name: apply
+    status: complete
+  - name: verify
+    status: failed
+  - name: archive
+    status: pending
+
+dependencies: {}
+
+reviewWorkloadForecast:
+  totalTasks: 59
+  estimatedChangedLines: 4500
+  financialTasksRequiringJudgmentDouble: 16
+  chainedPrsRecommended: true
+  reason: "Estimated 4500 changed lines exceeds 400-line budget. 16 financial tasks require judgment double (ADR-005). Recommend splitting into chained PRs for safer review and faster iteration."
+  suggestedChainStrategy: "stacked-to-main"
+  deliveryStrategy: "ask-on-risk"
+  riskLevel: "high"
+  riskFactors:
+    - "Financial invariants (folio sequence, idempotent payments)"
+    - "Multi-tenant isolation (INV-06)"
+    - "Complex state transitions (orders, cash registers)"
+    - "Real-time WebSocket events"
+    - "59 total tasks with 12 phases"
+
+risks:
+  - area: billing
+    severity: high
+    mitigation: Judgment double review (ADR-005)
+  - area: cash-register
+    severity: high
+    mitigation: Judgment double review (ADR-005)
+  - area: folio-sequence
+    severity: medium
+    mitigation: Pessimistic locking tests
+  - area: multi-tenancy
+    severity: medium
+    mitigation: Repository tenant filter enforcement

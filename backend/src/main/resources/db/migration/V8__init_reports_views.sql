@@ -59,8 +59,8 @@ CREATE OR REPLACE VIEW v_footfall AS
 SELECT
     o.restaurant_id,
     DATE(o.created_at) AS order_date,
-    HOUR(o.created_at) AS order_hour,
+    EXTRACT(HOUR FROM o.created_at) AS order_hour,
     COUNT(*) AS order_count,
     SUM(o.people) AS total_people
 FROM `order` o
-GROUP BY o.restaurant_id, DATE(o.created_at), HOUR(o.created_at);
+GROUP BY o.restaurant_id, DATE(o.created_at), EXTRACT(HOUR FROM o.created_at);

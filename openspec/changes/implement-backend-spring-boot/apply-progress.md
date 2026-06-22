@@ -270,7 +270,7 @@ main
 6. Invoice and cash register services were already heavily covered by controller tests from PR #7b, so the service unit tests in PR #8b raised direct unit coverage but only marginally moved overall project coverage.
 7. Repository interfaces and `ReportService` inner row-mapper classes contribute very few countable lines to JaCoCo, so repository/query tests verify correctness but do not significantly move overall coverage. Reaching 80% will require covering the remaining large uncovered blocks: `ProductOptionService`, `TableService`, `UserService`, `SupplierService`, mappers, DTOs/entities, and inner row-mapper classes in `ReportRepository`.
 8. PR #9c was split further because the combined test code for `ProductService` + `ProductOptionService` alone would have been ~687 lines, well over the 400-line budget. `ProductService` was kept as the focused first slice (428 lines).
-9. PR #9d was split into four slices because the combined test code for `ProductOptionService` + `TableService` + `UserService` + `UserDetailsServiceAdapter` + `SupplierService` would have been well over the 400-line budget: #9d-i `ProductOptionService` (269 lines), #9d-ii `TableService` (352 lines), #9d-iii `UserService` (359 lines), and #9d-iv `UserDetailsServiceAdapter` + `SupplierService` (354 lines). MapStruct mappers remain for a follow-up slice.
+9. PR #9d was split into five slices because the combined test code for `ProductOptionService` + `TableService` + `UserService` + `UserDetailsServiceAdapter` + `SupplierService` + auth/user/table/supplier mappers would have been well over the 400-line budget: #9d-i `ProductOptionService` (269 lines), #9d-ii `TableService` (352 lines), #9d-iii `UserService` (359 lines), #9d-iv `UserDetailsServiceAdapter` + `SupplierService` (354 lines), and #9d-v auth/user/table/supplier mappers (242 lines). `menu` and `order` mappers remain for a follow-up slice.
 
 ## PR #9d-i: `pr/9d-i-coverage-product-option-service`
 - **Base**: `pr/9c-coverage-product-service`
@@ -395,6 +395,43 @@ main
 | `table.mapper` | 12% lines (1/11) | 12% lines (1/11) — unchanged, planned for mapper slice |
 | **Overall project** | 67.6% lines | **71.8% lines (3292/4585)** |
 
+## PR #9d-v: `pr/9d-v-coverage-mappers`
+- **Base**: `pr/9d-iv-coverage-user-details-supplier`
+- **Changed lines**: 242 (under 400-line budget)
+- **Scope decision**: The remaining mapper scope (`auth`, `user`, `table`, `supplier`, `menu`, and `order` mappers) was split to keep the slice focused. This slice covers the smaller **auth, user, table, and supplier mappers**; menu and order mappers move to the next slice.
+- **Files changed**:
+  | File | Action | Why |
+  |------|--------|-----|
+  | `backend/src/test/java/com/restaurant/app/auth/mapper/AuthMapperTest.java` | Created | Unit tests for `RoleMapper` and `UserMapper` (person fields, primary role, restaurant roles, null handling). |
+  | `backend/src/test/java/com/restaurant/app/user/mapper/UserMapperTest.java` | Created | Unit tests for manual `UserMapper` (primary role, restaurant roles, last login formatting). |
+  | `backend/src/test/java/com/restaurant/app/table/mapper/TableMapperTest.java` | Created | Unit tests for `TableMapper`. |
+  | `backend/src/test/java/com/restaurant/app/supplier/mapper/SupplierMapperTest.java` | Created | Unit tests for `SupplierMapper`. |
+
+### TDD Cycle Evidence (PR #9d-v)
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| Auth mapper coverage | `AuthMapperTest.java` | Unit | ✅ 230/230 | ✅ Written | ✅ Passed | ✅ 3 cases | ✅ Spotless applied |
+| User mapper coverage | `UserMapperTest.java` | Unit | ✅ 230/230 | ✅ Written | ✅ Passed | ✅ 2 cases | ✅ Spotless applied |
+| Table mapper coverage | `TableMapperTest.java` | Unit | ✅ 230/230 | ✅ Written | ✅ Passed | ✅ 1 case | ✅ Spotless applied |
+| Supplier mapper coverage | `SupplierMapperTest.java` | Unit | ✅ 230/230 | ✅ Written | ✅ Passed | ✅ 1 case | ✅ Spotless applied |
+
+### Test Results (PR #9d-v)
+- `mvn -f backend/pom.xml clean test -Dtest=AuthMapperTest,UserMapperTest,TableMapperTest,SupplierMapperTest`: **PASS** (7 tests).
+- `mvn -f backend/pom.xml clean test`: **PASS** (230 surefire tests).
+- `mvn -f backend/pom.xml verify -DskipITs=false`: **PASS** (230 surefire + 15 failsafe tests), **FAIL at `jacoco:check`** (expected — line coverage 0.76 < 0.80).
+- `mvn -f backend/pom.xml spotless:check`: **PASS**.
+
+### Coverage Delta (PR #9d-v)
+| Scope | Before | After |
+|-------|--------|-------|
+| `auth.mapper` | 2% lines (2/79) | **92% lines (71/79)** |
+| `user.mapper` | 4% lines (1/14) | **100% lines (14/14)** |
+| `table.mapper` | 12% lines (1/11) | **100% lines (11/11)** |
+| `supplier.mapper` | 7% lines (1/14) | **100% lines (14/14)** |
+| `menu.mapper` | 10% lines (6/60) | 10% lines (6/60) — unchanged, planned for next slice |
+| `order.mapper` | 3% lines (1/29) | 3% lines (1/29) — unchanged, planned for next slice |
+| **Overall project** | 71.8% lines | **75.6% lines (3466/4585)** |
+
 ## Branch Topology
 ```
 main
@@ -413,10 +450,11 @@ main
                                                                           └── pr/9d-ii-coverage-table-service
                                                                                 └── pr/9d-iii-coverage-user-service
                                                                                       └── pr/9d-iv-coverage-user-details-supplier
+                                                                                            └── pr/9d-v-coverage-mappers
 ```
 
 ## Next Steps
-1. Configure a Git remote and push `pr/6a-coverage-auth-table`, `pr/6b-coverage-menu-report`, `pr/7a-coverage-order`, `pr/7b-coverage-cash-invoice`, `pr/8-coverage-services-repositories`, `pr/8b-coverage-billing-cash-services`, `pr/8c-coverage-repositories`, `pr/9a-coverage-report-service`, `pr/9b-coverage-menu-services`, `pr/9c-coverage-product-service`, `pr/9d-i-coverage-product-option-service`, `pr/9d-ii-coverage-table-service`, `pr/9d-iii-coverage-user-service`, and `pr/9d-iv-coverage-user-details-supplier`.
+1. Configure a Git remote and push `pr/6a-coverage-auth-table`, `pr/6b-coverage-menu-report`, `pr/7a-coverage-order`, `pr/7b-coverage-cash-invoice`, `pr/8-coverage-services-repositories`, `pr/8b-coverage-billing-cash-services`, `pr/8c-coverage-repositories`, `pr/9a-coverage-report-service`, `pr/9b-coverage-menu-services`, `pr/9c-coverage-product-service`, `pr/9d-i-coverage-product-option-service`, `pr/9d-ii-coverage-table-service`, `pr/9d-iii-coverage-user-service`, `pr/9d-iv-coverage-user-details-supplier`, and `pr/9d-v-coverage-mappers`.
 2. Open stacked PRs:
    - PR #6a → `pr/5-integration-fixtures`
    - PR #6b → `pr/6a-coverage-auth-table`
@@ -432,6 +470,7 @@ main
    - PR #9d-ii → `pr/9d-i-coverage-product-option-service`
    - PR #9d-iii → `pr/9d-ii-coverage-table-service`
    - PR #9d-iv → `pr/9d-iii-coverage-user-service`
-3. Merge in order: PR #6a → #6b → #7a → #7b → #8a → #8b → #8c → #9a → #9b → #9c → #9d-i → #9d-ii → #9d-iii → #9d-iv.
-4. Continue with the next coverage slice(s) for MapStruct mappers, then proceed to DTOs/entities and remaining repository inner classes.
+   - PR #9d-v → `pr/9d-iv-coverage-user-details-supplier`
+3. Merge in order: PR #6a → #6b → #7a → #7b → #8a → #8b → #8c → #9a → #9b → #9c → #9d-i → #9d-ii → #9d-iii → #9d-iv → #9d-v.
+4. Continue with the next coverage slice(s) for `menu` and `order` mappers, then DTOs/entities and remaining repository inner classes.
 5. Hand off to `sdd-verify` once 80% line coverage is reached and all PRs are merged.

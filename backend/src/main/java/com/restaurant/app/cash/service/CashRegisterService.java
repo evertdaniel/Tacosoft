@@ -36,16 +36,15 @@ public class CashRegisterService {
         this.transactionRepository = transactionRepository;
     }
 
-    /** Open a new cash register for the current user. Only one open register per user at a time. */
+    /** Open a new cash register. Only one open register per restaurant at a time (INV-CASH-001). */
     @Transactional
     public CashRegisterDto openRegister(OpenCashRegisterRequest request, String userId) {
         String restaurantId = TenantContext.getRestaurantId();
 
-        // Check if user already has an open register
-        long openCount =
-                cashRegisterRepository.countOpenByUserIdAndRestaurantId(userId, restaurantId);
-        if (openCount > 0) {
-            throw new ConflictException("User already has an open cash register");
+        // Check if restaurant already has an open register
+        List<CashRegister> openRegisters = cashRegisterRepository.findAllOpenByRestaurantId(restaurantId);
+        if (!openRegisters.isEmpty()) {
+            throw new ConflictException("Restaurant already has an open cash register");
         }
 
         CashRegister cashRegister =

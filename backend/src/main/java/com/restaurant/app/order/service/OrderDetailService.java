@@ -16,6 +16,7 @@ import com.restaurant.app.order.repository.OrderDetailRepository;
 import com.restaurant.app.order.repository.OrderRepository;
 import com.restaurant.app.security.TenantContext;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -143,6 +144,9 @@ public class OrderDetailService {
         // Recalculate order total (INV-04)
         recalculateOrderTotal(detail.getOrderId());
 
+        // Derive order status from detail statuses (SPEC-ORDER-002)
+        deriveAndUpdateOrderStatus(detail.getOrderId());
+
         // Broadcast detail status change
         broadcastOrderDetailChange(detail);
 
@@ -249,6 +253,48 @@ public class OrderDetailService {
 
         // Broadcast order total change
         broadcastOrderChange(order);
+    }
+
+    /**
+     * Derive order status from its detail statuses (SPEC-ORDER-002).
+     *
+     * <p>Rules: - All non-cancelled details DELIVERED → order DELIVERED - Any detail IN_PROGRESS or
+     * READY → order IN_PROGRESS - All details CANCELLED → order CANCELLED - Otherwise remain PENDING
+     */
+    private void deriveAndUpdateOrderStatus(String orderId) {
+        String restaurantId = TenantContext.getRestaurantId();
+        Order order =
+                orderRepository
+                        .findByIdAndRestaurantId(orderId, restaurantId)
+                        .orElseThrow(() -> new NotFoundException("Order", orderId));
+
+        List<OrderDetail> details =
+                orderDetailRepository.findByRestaurantIdAndOrderId(restaurantId, orderId);
+
+        if (details.isEmpty()) {
+            return;
+        }
+
+        List<OrderDetail> activeDetails =
+                details.stream().filter(d -> !"CANCELLED".equals(d.getStatus())).toList();
+
+        String derivedStatus;
+        if (activeDetails.isEmpty()) {
+            derivedStatus = "CANCELLED";
+        } else if (activeDetails.stream().allMatch(d -> "DELIVERED".equals(d.getStatus()))) {
+            derivedStatus = "DELIVERED";
+        } else if (activeDetails.stream()
+                .anyMatch(d -> "IN_PROGRESS".equals(d.getStatus()) || "READY".equals(d.getStatus()))) {
+            derivedStatus = "IN_PROGRESS";
+        } else {
+            derivedStatus = "PENDING";
+        }
+
+        if (!derivedStatus.equals(order.getStatus())) {
+            order.setStatus(derivedStatus);
+            orderRepository.save(order);
+            broadcastOrderChange(order);
+        }
     }
 
     /** Broadcast order detail change to WebSocket topic. */

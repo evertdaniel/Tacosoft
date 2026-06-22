@@ -19,6 +19,7 @@ main
                                             └── pr/8c-coverage-repositories
                                                   └── pr/9a-coverage-report-service
                                                         └── pr/9b-coverage-menu-services
+                                                              └── pr/9c-coverage-product-service
 ```
 
 ## PR #6a: `pr/6a-coverage-auth-table`
@@ -222,24 +223,55 @@ main
 | `menu.service.ProductOptionService` | 7.9% lines (5/63) | 7.9% lines (5/63) — unchanged, covered in PR #9c |
 | **Overall project** | 53.0% lines | **54% lines** |
 
+## PR #9c: `pr/9c-coverage-product-service`
+- **Base**: `pr/9b-coverage-menu-services`
+- **Changed lines**: 428 (slightly over the 400-line soft budget; kept as the minimum focused slice for `ProductService`)
+- **Scope decision**: The original PR #9c scope (`ProductService`, `ProductOptionService`, `TableService`, `UserService`, `SupplierService`, and `UserDetailsServiceAdapter`) far exceeded the 400-line review budget. This slice covers **only `ProductService`**; the remaining services move to follow-up PRs.
+- **Files changed**:
+  | File | Action | Why |
+  |------|--------|-----|
+  | `backend/src/test/java/com/restaurant/app/menu/service/ProductServiceTest.java` | Created | Unit tests for `ProductService`: CRUD, status, stock, price, tax, restaurant scoping, category/production-area validation, and stock-management edge cases. |
+
+### TDD Cycle Evidence (PR #9c)
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| ProductService coverage | `ProductServiceTest.java` | Unit | ✅ 160/160 | ✅ Written | ✅ Passed | ✅ 18 cases | ✅ Spotless applied |
+
+### Test Results (PR #9c)
+- `mvn -f backend/pom.xml clean test -Dtest=ProductServiceTest`: **PASS** (18 tests).
+- `mvn -f backend/pom.xml clean verify -DskipITs=false`: **PASS** (160 surefire + 15 failsafe tests), **FAIL at `jacoco:check`** (expected — line coverage 0.55 < 0.80).
+- `mvn -f backend/pom.xml spotless:check`: **PASS**.
+
+### Coverage Delta (PR #9c)
+| Scope | Before | After |
+|-------|--------|-------|
+| `menu.service.ProductService` | 5.5% lines (6/109) | **100% lines (109/109)** |
+| `menu.service.ProductOptionService` | 7.9% lines (5/63) | 7.9% lines (5/63) — unchanged, planned for next slice |
+| `menu.service` (combined package) | 37.2% lines (118/317) | **69.7% lines (221/317)** |
+| `table.service` | 10.4% lines (10/96) | 10.4% lines (10/96) — unchanged, planned for next slice |
+| `user.service` | 7.4% lines (7/95) | 7.4% lines (7/95) — unchanged, planned for next slice |
+| `supplier.service` | 6.6% lines (4/61) | 6.6% lines (4/61) — unchanged, planned for next slice |
+| **Overall project** | 54.0% lines | **55.3% lines** |
+
 ## Removed File
-- `backend/src/test/java/com/restaurant/app/controller/ReadAdminControllerTest.java` — replaced by the four focused test classes above.
+- `backend/src/test/java/com/restaurant/app/controller/ReadAdminControllerTest.java` — replaced by the focused test classes above.
 
 ## Production Fixes Placement
 - The two production fixes (`V8__init_reports_views.sql` H2 hour fix and `CorsConfig` `allowedOriginPatterns` fix) are kept **only in PR #6a**.
-- They are **not duplicated** in PR #6b because PR #6b is stacked on top of PR #6a.
+- They are **not duplicated** in downstream PRs because the chain is stacked on top of PR #6a.
 
 ## Issues / Notes
 1. No remote is configured in this workspace (`git remote -v` returns nothing), so the new branches are currently local only. A remote URL is required before `git push` can succeed.
-2. `mvn verify` fails on all branches only at the `jacoco:check` gate because the overall project line coverage is still below 0.80. This is expected and accepted; further coverage slices (PR #9+) are required.
+2. `mvn verify` fails on all branches only at the `jacoco:check` gate because the overall project line coverage is still below 0.80. This is expected and accepted; further coverage slices are required.
 3. `mvn clean` must be used when verifying after migration resource changes, because stale `target/classes` copies can produce misleading H2 syntax errors.
 4. PR #7 was originally planned as a single 516-line slice covering order + cash register + invoice. It was split into `#7a` (order/order-detail, 246 lines) and `#7b` (cash register/invoice, 337 lines) to respect the 400-line budget.
 5. PR #8 was originally planned as a single slice covering services + repositories + `TenantSecurityExpression`. It exceeded the 400-line budget and was split into `#8a` (order services + tenant RBAC, 383 lines), `#8b` (billing/cash services, 353 lines), and `#8c` (order/invoice repositories, 356 lines).
 6. Invoice and cash register services were already heavily covered by controller tests from PR #7b, so the service unit tests in PR #8b raised direct unit coverage but only marginally moved overall project coverage.
-7. Repository interfaces and `ReportService` inner row-mapper classes contribute very few countable lines to JaCoCo, so repository/query tests verify correctness but do not significantly move overall coverage. Reaching 80% will require covering the remaining large uncovered blocks: menu services, `TableService`, `UserService`, `SupplierService`, mappers, DTOs/entities, and inner row-mapper classes in `ReportRepository`.
+7. Repository interfaces and `ReportService` inner row-mapper classes contribute very few countable lines to JaCoCo, so repository/query tests verify correctness but do not significantly move overall coverage. Reaching 80% will require covering the remaining large uncovered blocks: `ProductOptionService`, `TableService`, `UserService`, `SupplierService`, mappers, DTOs/entities, and inner row-mapper classes in `ReportRepository`.
+8. PR #9c was split further because the combined test code for `ProductService` + `ProductOptionService` alone would have been ~687 lines, well over the 400-line budget. `ProductService` was kept as the focused first slice (428 lines).
 
 ## Next Steps
-1. Configure a Git remote and push `pr/6a-coverage-auth-table`, `pr/6b-coverage-menu-report`, `pr/7a-coverage-order`, `pr/7b-coverage-cash-invoice`, `pr/8-coverage-services-repositories`, `pr/8b-coverage-billing-cash-services`, `pr/8c-coverage-repositories`, `pr/9a-coverage-report-service`, and `pr/9b-coverage-menu-services`.
+1. Configure a Git remote and push `pr/6a-coverage-auth-table`, `pr/6b-coverage-menu-report`, `pr/7a-coverage-order`, `pr/7b-coverage-cash-invoice`, `pr/8-coverage-services-repositories`, `pr/8b-coverage-billing-cash-services`, `pr/8c-coverage-repositories`, `pr/9a-coverage-report-service`, `pr/9b-coverage-menu-services`, and `pr/9c-coverage-product-service`.
 2. Open stacked PRs:
    - PR #6a → `pr/5-integration-fixtures`
    - PR #6b → `pr/6a-coverage-auth-table`
@@ -250,6 +282,7 @@ main
    - PR #8c → `pr/8b-coverage-billing-cash-services`
    - PR #9a → `pr/8c-coverage-repositories`
    - PR #9b → `pr/9a-coverage-report-service`
-3. Merge in order: PR #6a → #6b → #7a → #7b → #8a → #8b → #8c → #9a → #9b.
-4. Continue with PR #9c to cover `ProductService` and `ProductOptionService`, then proceed to `TableService`, `UserService`, `SupplierService`, mappers/DTOs, and remaining repository inner classes.
+   - PR #9c → `pr/9b-coverage-menu-services`
+3. Merge in order: PR #6a → #6b → #7a → #7b → #8a → #8b → #8c → #9a → #9b → #9c.
+4. Continue with the next coverage slice(s) for `ProductOptionService`, `TableService`, `UserService` / `UserDetailsServiceAdapter`, and `SupplierService`, then proceed to mappers/DTOs and remaining repository inner classes.
 5. Hand off to `sdd-verify` once 80% line coverage is reached and all PRs are merged.

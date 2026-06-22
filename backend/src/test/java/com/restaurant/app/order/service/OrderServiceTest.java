@@ -290,6 +290,75 @@ class OrderServiceTest {
                 .findByRestaurantIdAndStatusNotIn(restaurantId, List.of("COMPLETED", "CANCELLED"));
     }
 
+    @Test
+    void getAllOrders_ReturnsAllOrders() {
+        // Arrange
+        when(orderRepository.findByRestaurantId(restaurantId))
+                .thenReturn(List.of(createPendingOrder()));
+        when(orderDetailService.getDetailsByOrderId(anyString())).thenReturn(List.of());
+        when(orderMapper.toDto(any(Order.class), any())).thenReturn(createOrderDto());
+
+        // Act
+        List<OrderDto> result = orderService.getAllOrders();
+
+        // Assert
+        assertThat(result).hasSize(1);
+        verify(orderRepository).findByRestaurantId(restaurantId);
+    }
+
+    @Test
+    void getOrdersByStatus_ReturnsMatchingOrders() {
+        // Arrange
+        when(orderRepository.findByRestaurantIdAndStatus(restaurantId, "PENDING"))
+                .thenReturn(List.of(createPendingOrder()));
+        when(orderDetailService.getDetailsByOrderId(anyString())).thenReturn(List.of());
+        when(orderMapper.toDto(any(Order.class), any())).thenReturn(createOrderDto());
+
+        // Act
+        List<OrderDto> result = orderService.getOrdersByStatus("PENDING");
+
+        // Assert
+        assertThat(result).hasSize(1);
+        verify(orderRepository).findByRestaurantIdAndStatus(restaurantId, "PENDING");
+    }
+
+    @Test
+    void updateOrder_ExistingOrder_UpdatesAllowedFields() {
+        // Arrange
+        Order order = createPendingOrder();
+        when(orderRepository.findByIdAndRestaurantId("order-1", restaurantId))
+                .thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(orderDetailService.getDetailsByOrderId("order-1")).thenReturn(List.of());
+        when(orderMapper.toDto(eq(order), any())).thenReturn(createOrderDto());
+
+        CreateOrderRequest request = new CreateOrderRequest();
+        request.setPeople(6);
+        request.setClientId("client-2");
+
+        // Act
+        OrderDto result = orderService.updateOrder("order-1", request);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(order.getPeople()).isEqualTo(6);
+        assertThat(order.getClientId()).isEqualTo("client-2");
+        verify(orderRepository).save(order);
+    }
+
+    @Test
+    void createOrder_TableNotFound_ThrowsNotFoundException() {
+        // Arrange
+        when(tableRepository.findByIdAndRestaurantId("table-1", restaurantId))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThatThrownBy(() -> orderService.createOrder(validRequest))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Table");
+    }
+
     // Helper methods
 
     private RestaurantTable createAvailableTable() {

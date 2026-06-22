@@ -11,8 +11,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.net.URI;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -32,6 +35,7 @@ public class OrderController {
 
     /** Create a new order. POST /orders */
     @PostMapping
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('WAITER', 'ADMIN')")
     @Operation(
             summary = "Create order",
             description =
@@ -41,7 +45,7 @@ public class OrderController {
     @ApiResponses(
             value = {
                 @ApiResponse(
-                        responseCode = "200",
+                        responseCode = "201",
                         description = "Order created successfully",
                         content = @Content(schema = @Schema(implementation = OrderDto.class))),
                 @ApiResponse(
@@ -56,7 +60,9 @@ public class OrderController {
             })
     public ResponseEntity<OrderDto> createOrder(@Valid @RequestBody CreateOrderRequest request) {
         OrderDto response = orderService.createOrder(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(URI.create("/orders/" + response.getId()))
+                .body(response);
     }
 
     /** Get all orders for current restaurant. GET /orders */

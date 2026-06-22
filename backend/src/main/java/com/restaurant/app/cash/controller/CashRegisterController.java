@@ -11,9 +11,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
  * CashRegister controller - cash drawer endpoints. Implements SPEC-CASH-001 and INV-05 (Z-report).
@@ -31,16 +34,25 @@ public class CashRegisterController {
     }
 
     @PostMapping("/open")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('CASHIER', 'ADMIN')")
     @Operation(
             summary = "Open cash register",
             description = "Open new cash drawer for current user")
     public ResponseEntity<CashRegisterDto> openRegister(
             @Valid @RequestBody OpenCashRegisterRequest request, Authentication authentication) {
         String userId = authentication.getName();
-        return ResponseEntity.ok(cashRegisterService.openRegister(request, userId));
+        CashRegisterDto response = cashRegisterService.openRegister(request, userId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(
+                        ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path("/{id}")
+                                .buildAndExpand(response.getId())
+                                .toUri())
+                .body(response);
     }
 
     @PutMapping("/{id}/close")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('CASHIER', 'ADMIN')")
     @Operation(
             summary = "Close cash register",
             description = "Close drawer with Z-report and balance validation (INV-05)")

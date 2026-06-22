@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /** Controller for order detail endpoints. */
@@ -40,6 +41,7 @@ public class OrderDetailController {
 
     /** Update order detail status. PUT /order-details/{id}/status */
     @PutMapping("/{id}/status")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('COOK', 'ADMIN')")
     @Operation(
             summary = "Update detail status",
             description = "Update order detail status with transition validation")

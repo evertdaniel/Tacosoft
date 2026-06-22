@@ -42,7 +42,8 @@ public class CashRegisterService {
         String restaurantId = TenantContext.getRestaurantId();
 
         // Check if restaurant already has an open register
-        List<CashRegister> openRegisters = cashRegisterRepository.findAllOpenByRestaurantId(restaurantId);
+        List<CashRegister> openRegisters =
+                cashRegisterRepository.findAllOpenByRestaurantId(restaurantId);
         if (!openRegisters.isEmpty()) {
             throw new ConflictException("Restaurant already has an open cash register");
         }

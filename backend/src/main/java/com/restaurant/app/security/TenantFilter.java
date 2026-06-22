@@ -33,7 +33,8 @@ public class TenantFilter extends OncePerRequestFilter {
         }
 
         if (restaurantId == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "x-restaurant-id header is required");
+            response.sendError(
+                    HttpServletResponse.SC_BAD_REQUEST, "x-restaurant-id header is required");
             return;
         }
 

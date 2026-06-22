@@ -39,8 +39,10 @@ public interface InvoiceRepository extends JpaRepository<Invoice, String> {
 
     @Query("SELECT COUNT(i) FROM Invoice i WHERE i.restaurantId = :restaurantId")
     long countByRestaurantId(@Param("restaurantId") String restaurantId);
-    @Query("SELECT COUNT(i) FROM Invoice i WHERE i.orderId = :orderId AND i.restaurantId ="
-            + " :restaurantId AND i.isPaid = false")
+
+    @Query(
+            "SELECT COUNT(i) FROM Invoice i WHERE i.orderId = :orderId AND i.restaurantId ="
+                    + " :restaurantId AND i.isPaid = false")
     long countUnpaidByOrderIdAndRestaurantId(
             @Param("orderId") String orderId, @Param("restaurantId") String restaurantId);
 }

@@ -7,6 +7,7 @@ import com.restaurant.app.order.repository.OrderRepository;
 import com.restaurant.app.security.TenantContext;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,11 +33,29 @@ class RepositoryIntegrationTest {
     @Autowired(required = false)
     private OrderRepository orderRepository;
 
+    @Autowired private JdbcTemplate jdbcTemplate;
+
     private final String restaurantId = "restaurant-test";
+    private String userId;
 
     @BeforeEach
     void setUp() {
         TenantContext.setRestaurantId(restaurantId);
+
+        // Create the minimum tenant/person/user rows required by FK / NOT NULL constraints
+        String personId = UUID.randomUUID().toString();
+        userId = UUID.randomUUID().toString();
+        IntegrationTestFixtures.createRestaurant(jdbcTemplate, restaurantId, "Repository Test");
+        IntegrationTestFixtures.createRestaurant(
+                jdbcTemplate, "different-restaurant", "Other Restaurant");
+        IntegrationTestFixtures.createPerson(jdbcTemplate, personId, "Test", "User");
+        IntegrationTestFixtures.createAppUser(
+                jdbcTemplate,
+                userId,
+                "repo-user-" + System.nanoTime(),
+                "{noop}password",
+                personId,
+                true);
     }
 
     @AfterEach
@@ -58,7 +78,9 @@ class RepositoryIntegrationTest {
                         .num(1)
                         .type("IN_PLACE")
                         .status("PENDING")
+                        .people(1)
                         .total(java.math.BigDecimal.valueOf(100))
+                        .userId(userId)
                         .build();
 
         // Act
@@ -83,7 +105,9 @@ class RepositoryIntegrationTest {
                         .num(1)
                         .type("IN_PLACE")
                         .status("PENDING")
+                        .people(1)
                         .total(java.math.BigDecimal.valueOf(100))
+                        .userId(userId)
                         .build();
 
         Order order2 =
@@ -93,7 +117,9 @@ class RepositoryIntegrationTest {
                         .num(2)
                         .type("TAKE_AWAY")
                         .status("PENDING")
+                        .people(1)
                         .total(java.math.BigDecimal.valueOf(50))
+                        .userId(userId)
                         .build();
 
         orderRepository.save(order1);
@@ -119,7 +145,9 @@ class RepositoryIntegrationTest {
                         .num(100)
                         .type("IN_PLACE")
                         .status("PENDING")
+                        .people(1)
                         .total(java.math.BigDecimal.valueOf(100))
+                        .userId(userId)
                         .build();
 
         Order order2 =
@@ -129,7 +157,9 @@ class RepositoryIntegrationTest {
                         .num(105)
                         .type("TAKE_AWAY")
                         .status("PENDING")
+                        .people(1)
                         .total(java.math.BigDecimal.valueOf(50))
+                        .userId(userId)
                         .build();
 
         orderRepository.save(order1);

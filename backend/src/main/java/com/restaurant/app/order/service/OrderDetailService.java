@@ -259,7 +259,8 @@ public class OrderDetailService {
      * Derive order status from its detail statuses (SPEC-ORDER-002).
      *
      * <p>Rules: - All non-cancelled details DELIVERED → order DELIVERED - Any detail IN_PROGRESS or
-     * READY → order IN_PROGRESS - All details CANCELLED → order CANCELLED - Otherwise remain PENDING
+     * READY → order IN_PROGRESS - All details CANCELLED → order CANCELLED - Otherwise remain
+     * PENDING
      */
     private void deriveAndUpdateOrderStatus(String orderId) {
         String restaurantId = TenantContext.getRestaurantId();
@@ -284,7 +285,10 @@ public class OrderDetailService {
         } else if (activeDetails.stream().allMatch(d -> "DELIVERED".equals(d.getStatus()))) {
             derivedStatus = "DELIVERED";
         } else if (activeDetails.stream()
-                .anyMatch(d -> "IN_PROGRESS".equals(d.getStatus()) || "READY".equals(d.getStatus()))) {
+                .anyMatch(
+                        d ->
+                                "IN_PROGRESS".equals(d.getStatus())
+                                        || "READY".equals(d.getStatus()))) {
             derivedStatus = "IN_PROGRESS";
         } else {
             derivedStatus = "PENDING";

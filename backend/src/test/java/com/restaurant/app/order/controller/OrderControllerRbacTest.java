@@ -10,11 +10,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restaurant.app.auth.model.Role;
 import com.restaurant.app.auth.model.UserRestaurantRole;
+import com.restaurant.app.config.SecurityConfig;
 import com.restaurant.app.order.dto.CreateOrderDetailRequest;
 import com.restaurant.app.order.dto.CreateOrderRequest;
 import com.restaurant.app.order.dto.OrderDto;
 import com.restaurant.app.order.service.OrderService;
-import com.restaurant.app.config.SecurityConfig;
 import com.restaurant.app.security.JwtAuthenticationFilter;
 import com.restaurant.app.security.JwtService;
 import com.restaurant.app.security.TenantFilter;
@@ -32,17 +32,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
-/**
- * PR #2: Verify RBAC enforcement and HTTP semantics for order endpoints.
- */
+/** PR #2: Verify RBAC enforcement and HTTP semantics for order endpoints. */
 @WebMvcTest(OrderController.class)
-@ContextConfiguration(classes = {
-    SecurityConfig.class,
-    OrderController.class,
-    JwtAuthenticationFilter.class,
-    TenantFilter.class,
-    TenantSecurityExpression.class
-})
+@ContextConfiguration(
+        classes = {
+            SecurityConfig.class,
+            OrderController.class,
+            JwtAuthenticationFilter.class,
+            TenantFilter.class,
+            TenantSecurityExpression.class
+        })
 class OrderControllerRbacTest {
 
     @Autowired private MockMvc mockMvc;

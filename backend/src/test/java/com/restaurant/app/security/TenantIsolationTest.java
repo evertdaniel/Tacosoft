@@ -74,6 +74,7 @@ class TenantIsolationTest {
                             .num(8003)
                             .type("TAKE_AWAY")
                             .status("PENDING")
+                            .people(1)
                             .total(BigDecimal.valueOf(100))
                             .build();
             orderA = orderRepository.save(orderA);
@@ -200,6 +201,7 @@ class TenantIsolationTest {
         adminRole.setName("ADMIN");
 
         UserRestaurantRole roleA = new UserRestaurantRole();
+        roleA.setId(UUID.randomUUID().toString());
         roleA.setRestaurantId(restaurantA);
         roleA.setRole(adminRole);
         roleA.setUser(user);
@@ -210,6 +212,7 @@ class TenantIsolationTest {
         user.setId(UUID.randomUUID().toString());
 
         UserRestaurantRole roleB = new UserRestaurantRole();
+        roleB.setId(UUID.randomUUID().toString());
         roleB.setRestaurantId(restaurantB);
         roleB.setRole(adminRole);
         roleB.setUser(user);

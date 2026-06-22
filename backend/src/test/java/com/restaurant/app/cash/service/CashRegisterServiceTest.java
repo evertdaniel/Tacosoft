@@ -14,7 +14,6 @@ import com.restaurant.app.common.ConflictException;
 import com.restaurant.app.security.TenantContext;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,8 +51,7 @@ class CashRegisterServiceTest {
         OpenCashRegisterRequest request = new OpenCashRegisterRequest();
         request.setOpeningAmount(BigDecimal.valueOf(100));
 
-        when(cashRegisterRepository.findAllOpenByRestaurantId(restaurantId))
-                .thenReturn(List.of());
+        when(cashRegisterRepository.findAllOpenByRestaurantId(restaurantId)).thenReturn(List.of());
         when(cashRegisterRepository.save(any(CashRegister.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 

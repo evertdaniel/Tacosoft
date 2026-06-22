@@ -17,6 +17,7 @@ main
                                 └── pr/8-coverage-services-repositories (PR #8a)
                                       └── pr/8b-coverage-billing-cash-services
                                             └── pr/8c-coverage-repositories
+                                                  └── pr/9a-coverage-report-service
 ```
 
 ## PR #6a: `pr/6a-coverage-auth-table`
@@ -166,6 +167,30 @@ main
 | `billing.repository.InvoiceRepository` | custom query lines exercised |
 | **Overall** | 41.7% → 41.8% lines |
 
+## PR #9a: `pr/9a-coverage-report-service`
+- **Base**: `pr/8c-coverage-repositories`
+- **Changed lines**: 318 (under 400-line budget)
+- **Files changed**:
+  | File | Action | Why |
+  |------|--------|-----|
+  | `backend/src/test/java/com/restaurant/app/report/service/ReportServiceTest.java` | Created | Unit tests for `ReportService`: dashboard metrics, sales summary/period comparison, product margin/turnover, financial net cash flow, footfall peak hours, staff planning workload recommendations. |
+
+### TDD Cycle Evidence (PR #9a)
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| ReportService coverage | `ReportServiceTest.java` | Unit | ✅ 125/125 | ✅ Written | ✅ Passed | ✅ 11 cases | ✅ Spotless applied |
+
+### Test Results (PR #9a)
+- `mvn -f backend/pom.xml clean test -Dtest='!*IntegrationTest,!*InvariantTest'`: **PASS** (136 tests).
+- `mvn -f backend/pom.xml clean verify -DskipITs=false`: **FAIL at `jacoco:check`** (expected — line coverage 0.53 < 0.80).
+- `mvn -f backend/pom.xml spotless:check`: **PASS**.
+
+### Coverage Delta (PR #9a)
+| Scope | Coverage |
+|-------|----------|
+| `report.service.ReportService` | 1.0% → 98.0% lines (294/300) |
+| **Overall** | 41.8% → 53.0% lines |
+
 ## Removed File
 - `backend/src/test/java/com/restaurant/app/controller/ReadAdminControllerTest.java` — replaced by the four focused test classes above.
 
@@ -180,10 +205,10 @@ main
 4. PR #7 was originally planned as a single 516-line slice covering order + cash register + invoice. It was split into `#7a` (order/order-detail, 246 lines) and `#7b` (cash register/invoice, 337 lines) to respect the 400-line budget.
 5. PR #8 was originally planned as a single slice covering services + repositories + `TenantSecurityExpression`. It exceeded the 400-line budget and was split into `#8a` (order services + tenant RBAC, 383 lines), `#8b` (billing/cash services, 353 lines), and `#8c` (order/invoice repositories, 356 lines).
 6. Invoice and cash register services were already heavily covered by controller tests from PR #7b, so the service unit tests in PR #8b raised direct unit coverage but only marginally moved overall project coverage.
-7. Repository interfaces contribute very few countable lines to JaCoCo, so repository tests verify query correctness but do not significantly move overall coverage. Reaching 80% will require covering large uncovered blocks: `ReportService`, menu services, `TableService`, `UserService`, `SupplierService`, mappers, DTOs/entities, and inner row-mapper classes in `ReportRepository`.
+7. Repository interfaces and `ReportService` inner row-mapper classes contribute very few countable lines to JaCoCo, so repository/query tests verify correctness but do not significantly move overall coverage. Reaching 80% will require covering the remaining large uncovered blocks: menu services, `TableService`, `UserService`, `SupplierService`, mappers, DTOs/entities, and inner row-mapper classes in `ReportRepository`.
 
 ## Next Steps
-1. Configure a Git remote and push `pr/6a-coverage-auth-table`, `pr/6b-coverage-menu-report`, `pr/7a-coverage-order`, `pr/7b-coverage-cash-invoice`, `pr/8-coverage-services-repositories`, `pr/8b-coverage-billing-cash-services`, and `pr/8c-coverage-repositories`.
+1. Configure a Git remote and push `pr/6a-coverage-auth-table`, `pr/6b-coverage-menu-report`, `pr/7a-coverage-order`, `pr/7b-coverage-cash-invoice`, `pr/8-coverage-services-repositories`, `pr/8b-coverage-billing-cash-services`, `pr/8c-coverage-repositories`, and `pr/9a-coverage-report-service`.
 2. Open stacked PRs:
    - PR #6a → `pr/5-integration-fixtures`
    - PR #6b → `pr/6a-coverage-auth-table`
@@ -192,6 +217,7 @@ main
    - PR #8a → `pr/7b-coverage-cash-invoice`
    - PR #8b → `pr/8-coverage-services-repositories`
    - PR #8c → `pr/8b-coverage-billing-cash-services`
-3. Merge in order: PR #6a → #6b → #7a → #7b → #8a → #8b → #8c.
-4. Continue with PR #9+ to push coverage toward 80%: target `ReportService`, menu services, `TableService`, `UserService`, `SupplierService`, mappers/DTOs, and remaining repository inner classes.
+   - PR #9a → `pr/8c-coverage-repositories`
+3. Merge in order: PR #6a → #6b → #7a → #7b → #8a → #8b → #8c → #9a.
+4. Continue with PR #9b+ to push coverage toward 80%: target menu services, `TableService`, `UserService`, `SupplierService`, mappers/DTOs, and remaining repository inner classes.
 5. Hand off to `sdd-verify` once 80% line coverage is reached and all PRs are merged.

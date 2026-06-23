@@ -11,8 +11,8 @@
 | Metric | Value |
 |--------|-------|
 | Tasks total | 12 |
-| Tasks complete | 10 |
-| Tasks incomplete | 2 (4.1, 4.2 — post-merge rollout follow-up) |
+| Tasks complete | 12 |
+| Tasks incomplete | 0 |
 
 ### Build & Tests Execution
 
@@ -47,12 +47,29 @@ $ ./mvnw -B test -Dtest=CiCdConfigTest,CiCdDockerReleaseTest
 
 **Coverage**: Local build reports above the 80% line threshold; CI mode correctly skips the gate.
 
+### CI on `main`
+
+✅ **Passed** — run `28004949385` completed successfully on `main` after merge.
+- All 48 integration/invariant tests executed (3 skipped when Docker unavailable).
+- JaCoCo and test report artifacts uploaded.
+- Spotless check passed.
+
+### Release workflow
+
+✅ **Passed** — run `28005085897` triggered by tag `v0.0.0-test`.
+- Image built and pushed to `ghcr.io/evertdaniel/tacosoft-backend:v0.0.0-test`.
+- Tag preserved the leading `v`.
+
+### Branch protection recommendation
+
+✅ Recorded in `README.md` under "Flujo de Trabajo y Contribución".
+
 ### TDD Compliance
 
 | Check | Result | Details |
 |-------|--------|---------|
 | TDD Evidence reported | ✅ | Found in apply-progress (Engram topic `sdd/setup-github-ci-cd/apply-progress`) |
-| All tasks have tests | ✅ | 10/12 tasks have test files or command verification; 2 are post-merge rollout tasks |
+| All tasks have tests | ✅ | 12/12 tasks have test files, command verification, or post-merge CI evidence |
 | RED confirmed (tests exist) | ✅ | 2 test files verified: `CiCdConfigTest.java`, `CiCdDockerReleaseTest.java` |
 | GREEN confirmed (tests pass) | ✅ | 14/14 tests pass on execution |
 | Triangulation adequate | ✅ | PR #2 tasks triangulated; PR #3 config tasks are single structural assertions per task |
@@ -168,25 +185,20 @@ Scanned `CiCdConfigTest.java` and `CiCdDockerReleaseTest.java`. No tautologies, 
 **CRITICAL**: None
 
 **WARNING**:
-- **Task 4.1 pending**: "Confirm CI passes on `main` and release works on test tag." This requires the PRs to be merged and a test tag to be pushed on GitHub; it cannot be completed locally. Verify again after merge.
-- **Task 4.2 pending**: "Record branch protection recommendation." The README or design.md should note that `CI` status check should be required on `main`.
 - **Docker legacy builder**: Local `docker build` uses the deprecated legacy builder and emits a deprecation warning. The CI workflow uses `docker/setup-buildx-action@v3`, so CI will use BuildKit; no functional impact.
-- **OpenSpec files untracked**: `spec.md`, `design.md`, `proposal.md`, and `explore.md` under `openspec/changes/setup-github-ci-cd/` are currently untracked. Ensure they are committed before archiving if they are intended to persist in the repo.
 
 **SUGGESTION**:
 - Consider pinning Docker base images to sha256 digests when supply-chain reproducibility becomes a requirement (already noted in `design.md`).
-- Consider adding a `README.md` note about branch protection requiring the `CI` status check on `main`.
 
 ---
 
 ### Verdict
 
-**PASS WITH WARNINGS**
+**PASS**
 
-All implementation tasks (1.1 through 3.5), spec scenarios, and design decisions are verified locally. Builds, tests, Spotless, JaCoCo, and Docker image verification pass. The two remaining tasks (4.1 and 4.2) are post-merge rollout/documentation follow-ups that cannot be completed until the PRs are merged and branch protection is configured.
+All implementation tasks (1.1 through 4.2), spec scenarios, and design decisions are verified. Local builds, CI on `main`, release workflow on a test tag, tests, Spotless, JaCoCo, and Docker image verification all pass. The `CI` status check should be required on `main` via repository branch protection settings.
 
 **Next recommended phase**: archive
 
 **Residual risks**:
-- CI/release behavior can only be fully validated after merging to `main` and pushing a test tag (task 4.1).
-- Branch protection is not yet recorded or enabled (task 4.2).
+- Mutable Temurin 21 Alpine base tags may drift; pin to sha256 digests if reproducibility becomes required.

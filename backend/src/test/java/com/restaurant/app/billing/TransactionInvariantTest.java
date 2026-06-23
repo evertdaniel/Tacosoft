@@ -11,6 +11,7 @@ import com.restaurant.app.billing.service.InvoiceService;
 import com.restaurant.app.cash.model.CashRegister;
 import com.restaurant.app.cash.repository.CashRegisterRepository;
 import com.restaurant.app.cash.repository.TransactionRepository;
+import com.restaurant.app.common.IntegrationTestFixtures;
 import com.restaurant.app.order.model.Order;
 import com.restaurant.app.order.repository.OrderRepository;
 import com.restaurant.app.security.TenantContext;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
@@ -47,26 +49,46 @@ class TransactionInvariantTest {
 
     @Autowired private OrderRepository orderRepository;
 
-    private final String restaurantId = "restaurant-payment-test";
-    private final String userId = "user-payment-test";
+    @Autowired private JdbcTemplate jdbcTemplate;
+
+    private String restaurantId;
+    private String userId;
+    private String personId;
     private Order testOrder;
     private InvoiceDto testInvoice;
     private CashRegister testRegister;
 
     @BeforeEach
     void setUp() {
+        restaurantId = UUID.randomUUID().toString();
+        userId = UUID.randomUUID().toString();
+        personId = UUID.randomUUID().toString();
+
         TenantContext.setRestaurantId(restaurantId);
+
+        // Create the minimum tenant/user rows required by FK/NOT NULL constraints
+        IntegrationTestFixtures.createRestaurant(
+                jdbcTemplate, restaurantId, "Payment Test Restaurant");
+        IntegrationTestFixtures.createPerson(jdbcTemplate, personId, "Payment", "Test");
+        IntegrationTestFixtures.createAppUser(
+                jdbcTemplate,
+                userId,
+                "payment-user-" + UUID.randomUUID(),
+                "password",
+                personId,
+                true);
 
         // Create test order (reserved range 8000-8999)
         testOrder =
                 Order.builder()
-                        .id("order-payment-test")
+                        .id(UUID.randomUUID().toString())
                         .restaurantId(restaurantId)
                         .num(8001)
                         .type("IN_PLACE")
-                        .status("COMPLETED")
+                        .status("CLOSED")
                         .people(1)
                         .total(BigDecimal.valueOf(116))
+                        .userId(userId)
                         .build();
         testOrder = orderRepository.save(testOrder);
 
@@ -91,6 +113,9 @@ class TransactionInvariantTest {
     @AfterEach
     void tearDown() {
         try {
+            transactionRepository
+                    .findByCashRegisterId(testRegister.getId())
+                    .forEach(transactionRepository::delete);
             if (testInvoice != null && testInvoice.getId() != null) {
                 invoiceRepository.deleteById(testInvoice.getId());
             }
@@ -100,7 +125,8 @@ class TransactionInvariantTest {
             if (testRegister != null && testRegister.getId() != null) {
                 cashRegisterRepository.deleteById(testRegister.getId());
             }
-            // transactionRepository.deleteAllByCashRegisterId(testRegister.getId());
+            IntegrationTestFixtures.cleanupUserAndRestaurant(
+                    jdbcTemplate, userId, personId, restaurantId);
         } catch (Exception e) {
             // Ignore cleanup errors
         }

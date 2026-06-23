@@ -246,6 +246,9 @@
                 <configuration>
                     <includes>
                         <include>**/*IntegrationTest.java</include>
+                        <include>**/*InvariantTest.java</include>
+                        <include>**/*IsolationTest.java</include>
+                        <include>**/*PenetrationTest.java</include>
                     </includes>
                     <groups>integration</groups>
                     <skipITs>${skipITs}</skipITs>

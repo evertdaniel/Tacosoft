@@ -62,13 +62,15 @@ class ControllerIntegrationTest {
 
     private AppUser testUser;
     private String authToken;
-    private final String restaurantId = "restaurant-api-test";
+    private String restaurantId;
     private String productId;
     private String sectionId;
     private String categoryId;
 
     @BeforeEach
     void setUp() {
+        restaurantId = UUID.randomUUID().toString();
+
         // Setup MockMvc with security
         this.mockMvc =
                 MockMvcBuilders.webAppContextSetup(context)
@@ -266,9 +268,26 @@ class ControllerIntegrationTest {
 
     @Test
     void rbacEnforcement_UserWithoutAdminRole_Returns403() throws Exception {
-        // This test would require setting up a user with limited role
-        // For now, it's a placeholder showing RBAC test structure
-        // In production, test that CASHIER cannot access /admin endpoints
+        // Arrange - Create a WAITER user and generate a token for them
+        AppUser waiter = createUserWithRole("waiter-api-test", "WAITER", 3);
+        String waiterToken = jwtService.generateToken(waiter);
+
+        // Act & Assert - WAITER cannot create sections (ADMIN-only)
+        mockMvc.perform(
+                        post("/sections")
+                                .with(csrf())
+                                .header("Authorization", "Bearer " + waiterToken)
+                                .header("x-restaurant-id", restaurantId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{\"name\": \"Unauthorized Section\", \"displayOrder\":"
+                                                + " 1}"))
+                .andExpect(status().isForbidden());
+
+        // Cleanup
+        userRepository.deleteById(waiter.getId());
+
+        System.out.println("✅ RBAC enforcement rejected WAITER on ADMIN endpoint");
     }
 
     @Test
@@ -327,5 +346,37 @@ class ControllerIntegrationTest {
         user.setRestaurantRoles(List.of(restaurantRole));
 
         return user;
+    }
+
+    private AppUser createUserWithRole(String username, String roleName, int roleId) {
+        String rolePersonId = UUID.randomUUID().toString();
+        IntegrationTestFixtures.createPerson(jdbcTemplate, rolePersonId, roleName, "User");
+
+        AppUser user = new AppUser();
+        user.setId(UUID.randomUUID().toString());
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode("testpass"));
+        user.setActive(true);
+
+        Person person =
+                Person.builder().id(rolePersonId).firstName(roleName).lastName("User").build();
+        user.setPerson(person);
+
+        Role role = new Role();
+        role.setId(roleId);
+        role.setName(roleName);
+
+        user.setPrimaryRole(role);
+        user.setPrimaryRoleId(roleId);
+
+        UserRestaurantRole restaurantRole = new UserRestaurantRole();
+        restaurantRole.setId(UUID.randomUUID().toString());
+        restaurantRole.setRestaurantId(restaurantId);
+        restaurantRole.setRole(role);
+        restaurantRole.setUser(user);
+
+        user.setRestaurantRoles(List.of(restaurantRole));
+
+        return userRepository.save(user);
     }
 }

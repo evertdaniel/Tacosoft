@@ -38,11 +38,11 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: PR #3 — Docker, Release & Dependabot (`feature/setup-ci-cd-release`)
 
-- [ ] **3.1** (PR#3) Create `backend/Dockerfile`. Files: `backend/Dockerfile`. AC: multi-stage Temurin 21 build/JRE; non-root; exposes 8080; accepts env vars. Lines: ~25. Deps: 1.1.
-- [ ] **3.2** (PR#3) Create `.github/workflows/release.yml`. Files: `.github/workflows/release.yml`. AC: triggers on `v*.*.*`; pushes `ghcr.io/{OWNER}/tacosoft-backend:{TAG}` preserving `v`. Lines: ~40. Deps: 3.1.
-- [ ] **3.3** (PR#3) Create `.github/dependabot.yml`. Files: `.github/dependabot.yml`. AC: weekly Maven (`/backend`) and GitHub Actions (`/`). Lines: ~12. Deps: none.
-- [ ] **3.4** (PR#3) Add Docker build/run example to README. Files: `README.md`. AC: `docker build` and `docker run` examples present. Lines: ~15. Deps: 3.1.
-- [ ] **3.5** (PR#3) Verify Docker image and open PR #3. Files: none. AC: `docker build` succeeds; `docker run --rm tacosoft-backend id` shows non-root. Lines: 0. Deps: 3.1–3.4.
+- [x] **3.1** (PR#3) Create `backend/Dockerfile`. Files: `backend/Dockerfile`. AC: multi-stage Temurin 21 build/JRE; non-root; exposes 8080; accepts env vars. Lines: ~25. Deps: 1.1.
+- [x] **3.2** (PR#3) Create `.github/workflows/release.yml`. Files: `.github/workflows/release.yml`. AC: triggers on `v*.*.*`; pushes `ghcr.io/{OWNER}/tacosoft-backend:{TAG}` preserving `v`. Lines: ~40. Deps: 3.1.
+- [x] **3.3** (PR#3) Create `.github/dependabot.yml`. Files: `.github/dependabot.yml`. AC: weekly Maven (`/backend`) and GitHub Actions (`/`). Lines: ~12. Deps: none.
+- [x] **3.4** (PR#3) Add Docker build/run example to README. Files: `README.md`. AC: `docker build` and `docker run` examples present. Lines: ~15. Deps: 3.1.
+- [x] **3.5** (PR#3) Verify Docker image and open PR #3. Files: none. AC: `docker build` succeeds; `docker run --rm tacosoft-backend id` shows non-root. Lines: 0. Deps: 3.1–3.4.
 
 ## Phase 4: Verification & Rollout
 

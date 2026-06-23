@@ -207,6 +207,27 @@ cd backend
 
 La aplicación estará disponible en `http://localhost:8080` por defecto.
 
+### Ejecutar con Docker
+
+Construir la imagen:
+
+```bash
+docker build -t tacosoft-backend backend/
+```
+
+Ejecutar el contenedor:
+
+```bash
+docker run -d \
+  -p 8080:8080 \
+  -e DB_URL=jdbc:mysql://host.docker.internal:3306/tacosoft \
+  -e DB_USER=tacosoft_user \
+  -e DB_PASSWORD=tacosoft_pass \
+  -e JWT_SECRET=tu_jwt_secret \
+  --name tacosoft-backend \
+  tacosoft-backend
+```
+
 ---
 
 ## Base de Datos y Migraciones

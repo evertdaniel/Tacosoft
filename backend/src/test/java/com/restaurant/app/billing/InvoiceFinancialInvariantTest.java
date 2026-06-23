@@ -86,7 +86,7 @@ class InvoiceFinancialInvariantTest {
                         .restaurantId(restaurantId)
                         .num(8000 + (int) (System.currentTimeMillis() % 999)) // Reserved test range
                         .type("IN_PLACE")
-                        .status("COMPLETED")
+                        .status("CLOSED")
                         .people(1)
                         .total(BigDecimal.valueOf(116)) // 100 subtotal + 16 tax
                         .userId(userId)

@@ -10,6 +10,8 @@ import com.restaurant.app.billing.model.FolioSequence;
 import com.restaurant.app.billing.repository.FolioSequenceRepository;
 import com.restaurant.app.billing.repository.InvoiceRepository;
 import com.restaurant.app.billing.service.InvoiceService;
+import com.restaurant.app.common.EnabledIfDockerAvailable;
+import com.restaurant.app.common.IntegrationTestFixtures;
 import com.restaurant.app.order.model.Order;
 import com.restaurant.app.order.repository.OrderRepository;
 import com.restaurant.app.security.TenantContext;
@@ -26,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
@@ -35,6 +38,7 @@ import org.springframework.test.context.ActiveProfiles;
  * pass before production deployment.
  */
 @Tag("integration")
+@EnabledIfDockerAvailable
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(MySQLTestcontainersConfig.class)
@@ -48,13 +52,32 @@ class InvoiceFinancialInvariantTest {
 
     @Autowired private OrderRepository orderRepository;
 
-    private final String restaurantId = "restaurant-folio-test";
+    @Autowired private JdbcTemplate jdbcTemplate;
+
+    private String restaurantId;
+    private String userId;
+    private String personId;
     private Order testOrder;
 
     @BeforeEach
     void setUp() {
+        restaurantId = UUID.randomUUID().toString();
+        userId = UUID.randomUUID().toString();
+        personId = UUID.randomUUID().toString();
+
         // Set tenant context
         TenantContext.setRestaurantId(restaurantId);
+
+        // Create the minimum tenant/user rows required by FK/NOT NULL constraints
+        IntegrationTestFixtures.createRestaurant(jdbcTemplate, restaurantId, "Folio Test");
+        IntegrationTestFixtures.createPerson(jdbcTemplate, personId, "Folio", "Test");
+        IntegrationTestFixtures.createAppUser(
+                jdbcTemplate,
+                userId,
+                "folio-user-" + UUID.randomUUID(),
+                "password",
+                personId,
+                true);
 
         // Create test order in reserved ID block (8000-8999 for testing)
         testOrder =
@@ -66,6 +89,7 @@ class InvoiceFinancialInvariantTest {
                         .status("COMPLETED")
                         .people(1)
                         .total(BigDecimal.valueOf(116)) // 100 subtotal + 16 tax
+                        .userId(userId)
                         .build();
 
         testOrder = orderRepository.save(testOrder);
@@ -88,11 +112,15 @@ class InvoiceFinancialInvariantTest {
     void tearDown() {
         // Cleanup test data
         try {
-            // invoiceRepository.deleteAllByRestaurantId(restaurantId);
+            invoiceRepository
+                    .findAllByRestaurantId(restaurantId)
+                    .forEach(invoice -> invoiceRepository.deleteById(invoice.getId()));
             folioSequenceRepository.deleteById(restaurantId);
             if (testOrder != null && testOrder.getId() != null) {
                 orderRepository.deleteById(testOrder.getId());
             }
+            IntegrationTestFixtures.cleanupUserAndRestaurant(
+                    jdbcTemplate, userId, personId, restaurantId);
         } catch (Exception e) {
             // Ignore cleanup errors in tests
         }

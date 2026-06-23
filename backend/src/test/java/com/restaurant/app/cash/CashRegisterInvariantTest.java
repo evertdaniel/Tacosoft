@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.restaurant.app.billing.dto.CreateInvoiceRequest;
 import com.restaurant.app.billing.dto.InvoiceDto;
 import com.restaurant.app.billing.dto.PaymentRequest;
+import com.restaurant.app.billing.repository.InvoiceRepository;
 import com.restaurant.app.billing.service.InvoiceService;
 import com.restaurant.app.cash.dto.CloseCashRegisterRequest;
 import com.restaurant.app.cash.dto.OpenCashRegisterRequest;
@@ -15,6 +16,7 @@ import com.restaurant.app.cash.model.CashRegister;
 import com.restaurant.app.cash.repository.CashRegisterRepository;
 import com.restaurant.app.cash.repository.TransactionRepository;
 import com.restaurant.app.cash.service.CashRegisterService;
+import com.restaurant.app.common.IntegrationTestFixtures;
 import com.restaurant.app.order.model.Order;
 import com.restaurant.app.order.repository.OrderRepository;
 import com.restaurant.app.security.TenantContext;
@@ -26,6 +28,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
@@ -47,28 +50,45 @@ class CashRegisterInvariantTest {
 
     @Autowired private InvoiceService invoiceService;
 
+    @Autowired private InvoiceRepository invoiceRepository;
+
     @Autowired private OrderRepository orderRepository;
 
-    private final String restaurantId = "restaurant-cash-test";
-    private final String userId = "user-cash-test";
+    @Autowired private JdbcTemplate jdbcTemplate;
+
+    private String restaurantId;
+    private String userId;
+    private String personId;
     private CashRegister testRegister;
     private Order testOrder;
     private InvoiceDto testInvoice;
 
     @BeforeEach
     void setUp() {
+        restaurantId = UUID.randomUUID().toString();
+        userId = UUID.randomUUID().toString();
+        personId = UUID.randomUUID().toString();
+
         TenantContext.setRestaurantId(restaurantId);
+
+        // Create the minimum tenant/user rows required by FK/NOT NULL constraints
+        IntegrationTestFixtures.createRestaurant(
+                jdbcTemplate, restaurantId, "Cash Test Restaurant");
+        IntegrationTestFixtures.createPerson(jdbcTemplate, personId, "Cash", "Test");
+        IntegrationTestFixtures.createAppUser(
+                jdbcTemplate, userId, "cash-user-" + UUID.randomUUID(), "password", personId, true);
 
         // Create test order (reserved range)
         testOrder =
                 Order.builder()
-                        .id("order-cash-test")
+                        .id(UUID.randomUUID().toString())
                         .restaurantId(restaurantId)
                         .num(8002)
                         .type("IN_PLACE")
-                        .status("COMPLETED")
+                        .status("CLOSED")
                         .people(1)
                         .total(BigDecimal.valueOf(116))
+                        .userId(userId)
                         .build();
         testOrder = orderRepository.save(testOrder);
 
@@ -81,10 +101,20 @@ class CashRegisterInvariantTest {
     @AfterEach
     void tearDown() {
         try {
-            // transactionRepository.deleteAllByRestaurantId(restaurantId);
+            transactionRepository
+                    .findByCashRegisterId(testRegister != null ? testRegister.getId() : "")
+                    .forEach(transactionRepository::delete);
+            if (testInvoice != null && testInvoice.getId() != null) {
+                invoiceRepository.deleteById(testInvoice.getId());
+            }
+            if (testOrder != null && testOrder.getId() != null) {
+                orderRepository.deleteById(testOrder.getId());
+            }
             if (testRegister != null && testRegister.getId() != null) {
                 cashRegisterRepository.deleteById(testRegister.getId());
             }
+            IntegrationTestFixtures.cleanupUserAndRestaurant(
+                    jdbcTemplate, userId, personId, restaurantId);
         } catch (Exception e) {
             // Ignore cleanup errors
         }

@@ -18,7 +18,7 @@ import org.testcontainers.containers.MySQLContainer;
 @TestConfiguration
 public class MySQLTestcontainersConfig {
 
-    static MySQLContainer<?> MYSQL_CONTAINER;
+    public static MySQLContainer<?> MYSQL_CONTAINER;
 
     static {
         // Only start Testcontainers if not using local MySQL
@@ -35,7 +35,7 @@ public class MySQLTestcontainersConfig {
     }
 
     @DynamicPropertySource
-    static void overrideDataSourceProperties(DynamicPropertyRegistry registry) {
+    public static void overrideDataSourceProperties(DynamicPropertyRegistry registry) {
         String dbUrl = System.getProperty("DB_URL", System.getenv("DB_URL"));
         String dbUser = System.getProperty("DB_USER", System.getenv("DB_USER"));
         String dbPass = System.getProperty("DB_PASS", System.getenv("DB_PASS"));

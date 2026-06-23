@@ -3,10 +3,14 @@ package com.restaurant.app.order.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /** OrderDetail entity - individual items within an order. */
 @Entity
 @Table(name = "order_detail")
+@EntityListeners(AuditingEntityListener.class)
 public class OrderDetail {
 
     @Id
@@ -16,9 +20,11 @@ public class OrderDetail {
     @Column(name = "restaurant_id", nullable = false, columnDefinition = "CHAR(36)")
     private String restaurantId;
 
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
@@ -58,6 +64,9 @@ public class OrderDetail {
 
     @Column(name = "notes", length = 255)
     private String notes;
+
+    @Column(name = "type_order_detail", nullable = false, length = 20)
+    private String typeOrderDetail = "PRODUCT";
 
     @Column(name = "product_option_id", columnDefinition = "CHAR(36)")
     private String productOptionId;
@@ -182,6 +191,14 @@ public class OrderDetail {
         this.notes = notes;
     }
 
+    public String getTypeOrderDetail() {
+        return typeOrderDetail;
+    }
+
+    public void setTypeOrderDetail(String typeOrderDetail) {
+        this.typeOrderDetail = typeOrderDetail;
+    }
+
     public String getProductOptionId() {
         return productOptionId;
     }
@@ -243,6 +260,11 @@ public class OrderDetail {
 
         public Builder notes(String notes) {
             detail.notes = notes;
+            return this;
+        }
+
+        public Builder typeOrderDetail(String typeOrderDetail) {
+            detail.typeOrderDetail = typeOrderDetail;
             return this;
         }
 

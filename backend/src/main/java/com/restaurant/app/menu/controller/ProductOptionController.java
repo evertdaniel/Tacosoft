@@ -8,8 +8,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /** Controller for product option CRUD endpoints. */
 @RestController
@@ -25,11 +28,18 @@ public class ProductOptionController {
 
     /** Create a new product option. POST /product-options */
     @PostMapping
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Create product option", description = "Create a new product option")
     public ResponseEntity<ProductOptionDto> createProductOption(
             @Valid @RequestBody CreateProductOptionRequest request) {
         ProductOptionDto response = productOptionService.createProductOption(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(
+                        ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path("/{id}")
+                                .buildAndExpand(response.getId())
+                                .toUri())
+                .body(response);
     }
 
     /** Get all options for current restaurant. GET /product-options */
@@ -73,6 +83,7 @@ public class ProductOptionController {
 
     /** Update a product option. PUT /product-options/{id} */
     @PutMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Update product option", description = "Update a product option by ID")
     public ResponseEntity<ProductOptionDto> updateProductOption(
             @PathVariable String id, @Valid @RequestBody UpdateProductOptionRequest request) {
@@ -82,6 +93,7 @@ public class ProductOptionController {
 
     /** Delete a product option. DELETE /product-options/{id} */
     @DeleteMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Delete product option", description = "Delete a product option by ID")
     public ResponseEntity<Void> deleteProductOption(@PathVariable String id) {
         productOptionService.deleteProductOption(id);

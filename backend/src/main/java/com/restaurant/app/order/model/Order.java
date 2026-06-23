@@ -5,15 +5,21 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /** Order entity - customer orders. */
 @Entity
 @Table(name = "order")
+@EntityListeners(AuditingEntityListener.class)
 public class Order extends TenantAware {
 
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
@@ -56,6 +62,21 @@ public class Order extends TenantAware {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderDetail> details = new ArrayList<>();
+
+    @Column(name = "is_paid", nullable = false)
+    private Boolean isPaid = false;
+
+    @Column(name = "is_closed", nullable = false)
+    private Boolean isClosed = false;
+
+    @Column(name = "delivery_time")
+    private LocalDateTime deliveryTime;
+
+    @Column(name = "user_id", nullable = false, columnDefinition = "CHAR(36)")
+    private String userId;
+
+    @Column(name = "notes", length = 500)
+    private String notes;
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -161,6 +182,46 @@ public class Order extends TenantAware {
         this.details = details;
     }
 
+    public Boolean getIsPaid() {
+        return isPaid;
+    }
+
+    public void setIsPaid(Boolean isPaid) {
+        this.isPaid = isPaid;
+    }
+
+    public Boolean getIsClosed() {
+        return isClosed;
+    }
+
+    public void setIsClosed(Boolean isClosed) {
+        this.isClosed = isClosed;
+    }
+
+    public LocalDateTime getDeliveryTime() {
+        return deliveryTime;
+    }
+
+    public void setDeliveryTime(LocalDateTime deliveryTime) {
+        this.deliveryTime = deliveryTime;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
     public static class Builder {
         private final Order order = new Order();
 
@@ -201,6 +262,11 @@ public class Order extends TenantAware {
 
         public Builder tableId(String tableId) {
             order.tableId = tableId;
+            return this;
+        }
+
+        public Builder userId(String userId) {
+            order.userId = userId;
             return this;
         }
 

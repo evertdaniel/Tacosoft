@@ -279,6 +279,75 @@ class OrderDetailServiceTest {
         verify(orderDetailRepository).findByRestaurantIdAndOrderId(restaurantId, "order-1");
     }
 
+    @Test
+    void updateStatus_OneDetailInProgress_DerivesOrderInProgress() {
+        // Arrange
+        OrderDetail detail = createOrderDetail("PENDING");
+        com.restaurant.app.order.dto.UpdateOrderDetailStatusRequest request =
+                new com.restaurant.app.order.dto.UpdateOrderDetailStatusRequest();
+        request.setStatus("IN_PROGRESS");
+
+        when(orderDetailRepository.findByIdAndRestaurantId("detail-1", restaurantId))
+                .thenReturn(Optional.of(detail));
+        when(orderDetailRepository.save(any(OrderDetail.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(orderDetailRepository.findByRestaurantIdAndOrderId(restaurantId, "order-1"))
+                .thenReturn(List.of(detail));
+
+        // Act
+        orderDetailService.updateOrderDetailStatus("detail-1", request);
+
+        // Assert
+        assertThat(testOrder.getStatus()).isEqualTo("IN_PROGRESS");
+        verify(orderRepository, times(2)).save(testOrder);
+    }
+
+    @Test
+    void updateStatus_AllDetailsDelivered_DerivesOrderDelivered() {
+        // Arrange
+        OrderDetail detail = createOrderDetail("READY");
+        com.restaurant.app.order.dto.UpdateOrderDetailStatusRequest request =
+                new com.restaurant.app.order.dto.UpdateOrderDetailStatusRequest();
+        request.setStatus("DELIVERED");
+
+        when(orderDetailRepository.findByIdAndRestaurantId("detail-1", restaurantId))
+                .thenReturn(Optional.of(detail));
+        when(orderDetailRepository.save(any(OrderDetail.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(orderDetailRepository.findByRestaurantIdAndOrderId(restaurantId, "order-1"))
+                .thenReturn(List.of(detail));
+
+        // Act
+        orderDetailService.updateOrderDetailStatus("detail-1", request);
+
+        // Assert
+        assertThat(testOrder.getStatus()).isEqualTo("DELIVERED");
+        verify(orderRepository, times(2)).save(testOrder);
+    }
+
+    @Test
+    void updateStatus_AllActiveDetailsCancelled_DerivesOrderCancelled() {
+        // Arrange
+        OrderDetail detail = createOrderDetail("PENDING");
+        com.restaurant.app.order.dto.UpdateOrderDetailStatusRequest request =
+                new com.restaurant.app.order.dto.UpdateOrderDetailStatusRequest();
+        request.setStatus("CANCELLED");
+
+        when(orderDetailRepository.findByIdAndRestaurantId("detail-1", restaurantId))
+                .thenReturn(Optional.of(detail));
+        when(orderDetailRepository.save(any(OrderDetail.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(orderDetailRepository.findByRestaurantIdAndOrderId(restaurantId, "order-1"))
+                .thenReturn(List.of(detail));
+
+        // Act
+        orderDetailService.updateOrderDetailStatus("detail-1", request);
+
+        // Assert
+        assertThat(testOrder.getStatus()).isEqualTo("CANCELLED");
+        verify(orderRepository, times(2)).save(testOrder);
+    }
+
     // Helper methods
 
     private Order createTestOrder() {

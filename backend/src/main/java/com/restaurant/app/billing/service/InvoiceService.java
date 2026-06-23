@@ -167,7 +167,23 @@ public class InvoiceService {
         invoice.setPaymentMethod(request.getPaymentMethod());
         invoice = invoiceRepository.save(invoice);
 
+        // 6. Update order.isPaid if all invoices for the order are paid (BILL-008)
+        updateOrderPaidStatus(invoice.getOrderId(), restaurantId);
+
         return toDto(invoice);
+    }
+
+    private void updateOrderPaidStatus(String orderId, String restaurantId) {
+        long unpaidInvoices =
+                invoiceRepository.countUnpaidByOrderIdAndRestaurantId(orderId, restaurantId);
+        if (unpaidInvoices == 0) {
+            Order order =
+                    orderRepository
+                            .findByIdAndRestaurantId(orderId, restaurantId)
+                            .orElseThrow(() -> new NotFoundException("Order", orderId));
+            order.setIsPaid(true);
+            orderRepository.save(order);
+        }
     }
 
     @Transactional(readOnly = true)

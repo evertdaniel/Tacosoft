@@ -8,8 +8,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /** Controller for supplier CRUD endpoints. Implements T10.1. */
 @RestController
@@ -25,11 +28,18 @@ public class SupplierController {
 
     /** Create a new supplier. POST /suppliers */
     @PostMapping
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Create supplier", description = "Create a new supplier")
     public ResponseEntity<SupplierDto> createSupplier(
             @Valid @RequestBody CreateSupplierRequest request) {
         SupplierDto response = supplierService.createSupplier(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(
+                        ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path("/{id}")
+                                .buildAndExpand(response.getId())
+                                .toUri())
+                .body(response);
     }
 
     /** Get all suppliers for current restaurant. GET /suppliers */
@@ -66,6 +76,7 @@ public class SupplierController {
 
     /** Update a supplier. PUT /suppliers/{id} */
     @PutMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Update supplier", description = "Update a supplier by ID")
     public ResponseEntity<SupplierDto> updateSupplier(
             @PathVariable String id, @Valid @RequestBody UpdateSupplierRequest request) {
@@ -75,6 +86,7 @@ public class SupplierController {
 
     /** Delete a supplier. DELETE /suppliers/{id} */
     @DeleteMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Delete supplier", description = "Delete a supplier by ID")
     public ResponseEntity<Void> deleteSupplier(@PathVariable String id) {
         supplierService.deleteSupplier(id);

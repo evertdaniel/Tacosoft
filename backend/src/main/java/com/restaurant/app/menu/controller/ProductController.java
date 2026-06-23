@@ -8,8 +8,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /** Controller for product CRUD endpoints. */
 @RestController
@@ -25,11 +28,18 @@ public class ProductController {
 
     /** Create a new product. POST /products */
     @PostMapping
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Create product", description = "Create a new menu product")
     public ResponseEntity<ProductDto> createProduct(
             @Valid @RequestBody CreateProductRequest request) {
         ProductDto response = productService.createProduct(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(
+                        ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path("/{id}")
+                                .buildAndExpand(response.getId())
+                                .toUri())
+                .body(response);
     }
 
     /** Get all products for current restaurant. GET /products */
@@ -76,6 +86,7 @@ public class ProductController {
 
     /** Update a product. PUT /products/{id} */
     @PutMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Update product", description = "Update a product by ID")
     public ResponseEntity<ProductDto> updateProduct(
             @PathVariable String id, @Valid @RequestBody UpdateProductRequest request) {
@@ -85,6 +96,7 @@ public class ProductController {
 
     /** Delete a product. DELETE /products/{id} */
     @DeleteMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Delete product", description = "Delete a product by ID")
     public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
         productService.deleteProduct(id);

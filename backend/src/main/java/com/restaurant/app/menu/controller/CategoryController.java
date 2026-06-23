@@ -8,8 +8,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /** Controller for category CRUD endpoints. */
 @RestController
@@ -25,11 +28,18 @@ public class CategoryController {
 
     /** Create a new category. POST /categories */
     @PostMapping
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Create category", description = "Create a new menu category")
     public ResponseEntity<CategoryDto> createCategory(
             @Valid @RequestBody CreateCategoryRequest request) {
         CategoryDto response = categoryService.createCategory(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(
+                        ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path("/{id}")
+                                .buildAndExpand(response.getId())
+                                .toUri())
+                .body(response);
     }
 
     /** Get all categories for current restaurant. GET /categories */
@@ -60,6 +70,7 @@ public class CategoryController {
 
     /** Update a category. PUT /categories/{id} */
     @PutMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Update category", description = "Update a category by ID")
     public ResponseEntity<CategoryDto> updateCategory(
             @PathVariable String id, @Valid @RequestBody UpdateCategoryRequest request) {
@@ -69,6 +80,7 @@ public class CategoryController {
 
     /** Delete a category. DELETE /categories/{id} */
     @DeleteMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Delete category", description = "Delete a category by ID")
     public ResponseEntity<Void> deleteCategory(@PathVariable String id) {
         categoryService.deleteCategory(id);

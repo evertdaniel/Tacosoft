@@ -14,9 +14,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
  * Invoice controller - billing endpoints. Implements SPEC-BILL-001, INV-02 (folio sequence), INV-03
@@ -35,6 +38,7 @@ public class InvoiceController {
     }
 
     @PostMapping
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('CASHIER', 'ADMIN')")
     @Operation(
             summary = "Create invoice",
             description =
@@ -43,7 +47,7 @@ public class InvoiceController {
     @ApiResponses(
             value = {
                 @ApiResponse(
-                        responseCode = "200",
+                        responseCode = "201",
                         description = "Invoice created successfully with assigned folio",
                         content = @Content(schema = @Schema(implementation = InvoiceDto.class))),
                 @ApiResponse(
@@ -59,10 +63,18 @@ public class InvoiceController {
             })
     public ResponseEntity<InvoiceDto> createInvoice(
             @Valid @RequestBody CreateInvoiceRequest request) {
-        return ResponseEntity.ok(invoiceService.createInvoice(request));
+        InvoiceDto response = invoiceService.createInvoice(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(
+                        ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path("/{id}")
+                                .buildAndExpand(response.getId())
+                                .toUri())
+                .body(response);
     }
 
     @PostMapping("/{id}/pay")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('CASHIER', 'ADMIN')")
     @Operation(
             summary = "Pay invoice",
             description =

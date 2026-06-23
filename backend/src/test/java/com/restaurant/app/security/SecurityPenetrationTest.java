@@ -301,6 +301,7 @@ class SecurityPenetrationTest {
         adminRole.setName("ADMIN");
 
         UserRestaurantRole restaurantRole = new UserRestaurantRole();
+        restaurantRole.setId(UUID.randomUUID().toString());
         restaurantRole.setRestaurantId(restaurantId);
         restaurantRole.setRole(adminRole);
         restaurantRole.setUser(user);

@@ -9,8 +9,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /** Controller for user management endpoints. */
 @RestController
@@ -42,14 +45,22 @@ public class UserController {
 
     /** Create a new user. POST /users */
     @PostMapping
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Create user", description = "Create a new user")
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody CreateUserRequest request) {
         UserDto user = userService.createUser(request);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(
+                        ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path("/{id}")
+                                .buildAndExpand(user.getId())
+                                .toUri())
+                .body(user);
     }
 
     /** Update a user. PUT /users/{id} */
     @PutMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Update user", description = "Update a user by ID")
     public ResponseEntity<UserDto> updateUser(
             @PathVariable String id, @Valid @RequestBody UpdateUserRequest request) {
@@ -59,6 +70,7 @@ public class UserController {
 
     /** Delete a user. DELETE /users/{id} */
     @DeleteMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Delete user", description = "Delete a user by ID")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
@@ -67,6 +79,7 @@ public class UserController {
 
     /** Assign a restaurant role to a user. POST /users/{id}/roles */
     @PostMapping("/{id}/roles")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Assign role", description = "Assign a restaurant role to a user")
     public ResponseEntity<Void> assignRestaurantRole(
             @PathVariable String id, @Valid @RequestBody AssignRoleRequest request) {
@@ -76,6 +89,7 @@ public class UserController {
 
     /** Remove a restaurant role from a user. DELETE /users/{id}/roles/{restaurantId}/{roleId} */
     @DeleteMapping("/{id}/roles/{restaurantId}/{roleId}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Remove role", description = "Remove a restaurant role from a user")
     public ResponseEntity<Void> removeRestaurantRole(
             @PathVariable String id,

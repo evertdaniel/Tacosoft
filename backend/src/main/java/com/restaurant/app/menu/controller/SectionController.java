@@ -8,8 +8,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /** Controller for Section CRUD endpoints. */
 @RestController
@@ -25,11 +28,18 @@ public class SectionController {
 
     /** Create a new section. POST /sections */
     @PostMapping
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Create section", description = "Create a new menu section")
     public ResponseEntity<SectionDto> createSection(
             @Valid @RequestBody CreateSectionRequest request) {
         SectionDto response = sectionService.createSection(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(
+                        ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path("/{id}")
+                                .buildAndExpand(response.id())
+                                .toUri())
+                .body(response);
     }
 
     /** Get all sections for current restaurant. GET /sections */
@@ -58,6 +68,7 @@ public class SectionController {
 
     /** Update a section. PUT /sections/{id} */
     @PutMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Update section", description = "Update a section by ID")
     public ResponseEntity<SectionDto> updateSection(
             @PathVariable String id, @Valid @RequestBody UpdateSectionRequest request) {
@@ -67,6 +78,7 @@ public class SectionController {
 
     /** Delete a section. DELETE /sections/{id} */
     @DeleteMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Delete section", description = "Delete a section by ID")
     public ResponseEntity<Void> deleteSection(@PathVariable String id) {
         sectionService.deleteSection(id);

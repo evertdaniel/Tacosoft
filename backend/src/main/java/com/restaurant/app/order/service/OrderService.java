@@ -12,12 +12,15 @@ import com.restaurant.app.order.model.OrderDetail;
 import com.restaurant.app.order.repository.OrderDetailRepository;
 import com.restaurant.app.order.repository.OrderRepository;
 import com.restaurant.app.security.TenantContext;
+import com.restaurant.app.security.UserDetailsAdapter;
 import com.restaurant.app.table.model.RestaurantTable;
 import com.restaurant.app.table.repository.TableRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -151,6 +154,7 @@ public class OrderService {
                         .people(request.getPeople())
                         .tableId(request.getTableId())
                         .clientId(request.getClientId())
+                        .userId(getCurrentUserId())
                         .build();
 
         order = orderRepository.save(order);
@@ -235,5 +239,15 @@ public class OrderService {
     private void broadcastOrderCreated(OrderDto order) {
         String restaurantId = TenantContext.getRestaurantId();
         messagingTemplate.convertAndSend("/topic/restaurant/" + restaurantId + "/orders", order);
+    }
+
+    /** Resolve the current authenticated user's id, if available. */
+    private String getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null
+                && authentication.getPrincipal() instanceof UserDetailsAdapter userDetails) {
+            return userDetails.getId();
+        }
+        return null;
     }
 }

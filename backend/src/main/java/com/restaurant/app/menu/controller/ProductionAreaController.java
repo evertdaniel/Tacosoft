@@ -8,8 +8,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /** Controller for production area CRUD endpoints. */
 @RestController
@@ -25,11 +28,18 @@ public class ProductionAreaController {
 
     /** Create a new production area. POST /production-areas */
     @PostMapping
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Create production area", description = "Create a new production area")
     public ResponseEntity<ProductionAreaDto> createProductionArea(
             @Valid @RequestBody CreateProductionAreaRequest request) {
         ProductionAreaDto response = productionAreaService.createProductionArea(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(
+                        ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path("/{id}")
+                                .buildAndExpand(response.getId())
+                                .toUri())
+                .body(response);
     }
 
     /** Get all production areas for current restaurant. GET /production-areas */
@@ -52,6 +62,7 @@ public class ProductionAreaController {
 
     /** Update a production area. PUT /production-areas/{id} */
     @PutMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Update production area", description = "Update a production area by ID")
     public ResponseEntity<ProductionAreaDto> updateProductionArea(
             @PathVariable String id, @Valid @RequestBody UpdateProductionAreaRequest request) {
@@ -61,6 +72,7 @@ public class ProductionAreaController {
 
     /** Delete a production area. DELETE /production-areas/{id} */
     @DeleteMapping("/{id}")
+    @PreAuthorize("@tenantSecurityExpression.hasAnyRole('ADMIN')")
     @Operation(summary = "Delete production area", description = "Delete a production area by ID")
     public ResponseEntity<Void> deleteProductionArea(@PathVariable String id) {
         productionAreaService.deleteProductionArea(id);

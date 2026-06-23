@@ -67,6 +67,7 @@ class CashRegisterInvariantTest {
                         .num(8002)
                         .type("IN_PLACE")
                         .status("COMPLETED")
+                        .people(1)
                         .total(BigDecimal.valueOf(116))
                         .build();
         testOrder = orderRepository.save(testOrder);

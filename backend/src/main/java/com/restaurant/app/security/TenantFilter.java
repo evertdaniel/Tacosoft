@@ -33,8 +33,8 @@ public class TenantFilter extends OncePerRequestFilter {
         }
 
         if (restaurantId == null) {
-            // Security filter chain will handle authentication failure
-            filterChain.doFilter(request, response);
+            response.sendError(
+                    HttpServletResponse.SC_BAD_REQUEST, "x-restaurant-id header is required");
             return;
         }
 

@@ -254,26 +254,20 @@ class InvoiceFinancialInvariantTest {
         folioSequenceRepository.save(sequence);
 
         // Act - Lock and increment multiple times
-        Long folio1 =
-                folioSequenceRepository
-                        .lockByRestaurantId(restaurantId)
-                        .orElseThrow()
-                        .getAndIncrement();
-        folioSequenceRepository.save(sequence);
+        FolioSequence locked1 =
+                folioSequenceRepository.lockByRestaurantId(restaurantId).orElseThrow();
+        Long folio1 = locked1.getAndIncrement();
+        folioSequenceRepository.save(locked1);
 
-        Long folio2 =
-                folioSequenceRepository
-                        .lockByRestaurantId(restaurantId)
-                        .orElseThrow()
-                        .getAndIncrement();
-        folioSequenceRepository.save(sequence);
+        FolioSequence locked2 =
+                folioSequenceRepository.lockByRestaurantId(restaurantId).orElseThrow();
+        Long folio2 = locked2.getAndIncrement();
+        folioSequenceRepository.save(locked2);
 
-        Long folio3 =
-                folioSequenceRepository
-                        .lockByRestaurantId(restaurantId)
-                        .orElseThrow()
-                        .getAndIncrement();
-        folioSequenceRepository.save(sequence);
+        FolioSequence locked3 =
+                folioSequenceRepository.lockByRestaurantId(restaurantId).orElseThrow();
+        Long folio3 = locked3.getAndIncrement();
+        folioSequenceRepository.save(locked3);
 
         // Assert - Contiguous folios
         assertThat(folio1).isEqualTo(90000L);

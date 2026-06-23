@@ -25,7 +25,7 @@
         <springdoc.version>2.5.0</springdoc.version>
         <testcontainers.version>1.19.8</testcontainers.version>
         <spotless.version>2.43.0</spotless.version>
-        <jacoco.version>0.8.11</jacoco.version>
+        <jacoco.version>0.8.15</jacoco.version>
         <skipITs>true</skipITs>
         <jacoco.check.skip>false</jacoco.check.skip>
     </properties>

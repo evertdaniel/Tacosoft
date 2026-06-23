@@ -415,6 +415,8 @@ Este proyecto usa **GitHub Flow** con pull requests pequeñas y enfocadas:
 4. Crear un PR descriptivo.
 5. Mergear solo después de revisión y build exitosa.
 
+> **Protección de ramas recomendada:** en `main` se debe exigir que el check `CI` del workflow `.github/workflows/ci.yml` pase antes de permitir el merge. Esto garantiza que toda contribución compile, pase los tests y respete el formato antes de integrarse.
+
 Convención de commits: **Conventional Commits**.
 
 Ejemplos:

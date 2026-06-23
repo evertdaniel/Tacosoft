@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 import com.restaurant.app.common.ConflictException;
 import com.restaurant.app.common.NotFoundException;
 import com.restaurant.app.menu.model.Product;
+import com.restaurant.app.menu.model.ProductOption;
 import com.restaurant.app.menu.repository.ProductOptionRepository;
 import com.restaurant.app.menu.repository.ProductRepository;
 import com.restaurant.app.menu.service.ProductService;
@@ -346,6 +347,144 @@ class OrderDetailServiceTest {
         // Assert
         assertThat(testOrder.getStatus()).isEqualTo("CANCELLED");
         verify(orderRepository, times(2)).save(testOrder);
+    }
+
+    @Test
+    void updateStatus_CancelledFromPending_RestoresStock() {
+        // Arrange
+        OrderDetail detail = createOrderDetail("PENDING");
+        com.restaurant.app.order.dto.UpdateOrderDetailStatusRequest request =
+                new com.restaurant.app.order.dto.UpdateOrderDetailStatusRequest();
+        request.setStatus("CANCELLED");
+
+        when(orderDetailRepository.findByIdAndRestaurantId("detail-1", restaurantId))
+                .thenReturn(Optional.of(detail));
+        when(orderDetailRepository.save(any(OrderDetail.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(orderDetailRepository.findByRestaurantIdAndOrderId(restaurantId, "order-1"))
+                .thenReturn(List.of(detail));
+
+        // Act
+        orderDetailService.updateOrderDetailStatus("detail-1", request);
+
+        // Assert - Stock restored by quantity
+        verify(productService).updateStock("product-1", 2);
+    }
+
+    @Test
+    void updateStatus_SameStatus_AllowedWithoutSideEffects() {
+        // Arrange
+        OrderDetail detail = createOrderDetail("PENDING");
+        com.restaurant.app.order.dto.UpdateOrderDetailStatusRequest request =
+                new com.restaurant.app.order.dto.UpdateOrderDetailStatusRequest();
+        request.setStatus("PENDING");
+
+        when(orderDetailRepository.findByIdAndRestaurantId("detail-1", restaurantId))
+                .thenReturn(Optional.of(detail));
+        when(orderDetailRepository.save(any(OrderDetail.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(orderDetailRepository.findByRestaurantIdAndOrderId(restaurantId, "order-1"))
+                .thenReturn(List.of(detail));
+
+        // Act
+        OrderDetailDto result = orderDetailService.updateOrderDetailStatus("detail-1", request);
+
+        // Assert
+        assertThat(result.getStatus()).isEqualTo("PENDING");
+        verify(productService, never()).updateStock(anyString(), anyInt());
+    }
+
+    @Test
+    void getOrderDetailById_ExistingDetail_ReturnsDetail() {
+        // Arrange
+        OrderDetail detail = createOrderDetail("READY");
+        Product product = createTestProduct(BigDecimal.valueOf(25));
+
+        when(orderDetailRepository.findByIdAndRestaurantId("detail-1", restaurantId))
+                .thenReturn(Optional.of(detail));
+        when(productRepository.findById("product-1")).thenReturn(Optional.of(product));
+
+        // Act
+        OrderDetailDto result = orderDetailService.getOrderDetailById("detail-1");
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo("detail-1");
+        assertThat(result.getStatus()).isEqualTo("READY");
+    }
+
+    @Test
+    void getOrderDetailById_NotFound_ThrowsNotFoundException() {
+        // Arrange
+        when(orderDetailRepository.findByIdAndRestaurantId("detail-1", restaurantId))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThatThrownBy(() -> orderDetailService.getOrderDetailById("detail-1"))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void createOrderDetail_WithProductOption_CalculatesAdjustedPrice() {
+        // Arrange
+        CreateOrderDetailRequest request = new CreateOrderDetailRequest();
+        request.setProductId("product-1");
+        request.setProductOptionId("option-1");
+        request.setQuantity(2);
+
+        Product product = createTestProduct(BigDecimal.valueOf(25));
+        ProductOption option =
+                ProductOption.builder()
+                        .id("option-1")
+                        .restaurantId(restaurantId)
+                        .name("Extra cheese")
+                        .priceAdjustment(BigDecimal.valueOf(5))
+                        .isAvailable(true)
+                        .build();
+
+        when(productRepository.findByIdAndRestaurantId("product-1", restaurantId))
+                .thenReturn(Optional.of(product));
+        when(productOptionRepository.findByIdAndRestaurantId("option-1", restaurantId))
+                .thenReturn(Optional.of(option));
+        when(orderDetailRepository.save(any(OrderDetail.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        OrderDetail result = orderDetailService.createOrderDetail(testOrder, request);
+
+        // Assert - unitPrice = 25 + 5, amount = 2 * 30
+        assertThat(result.getPrice()).isEqualTo(BigDecimal.valueOf(30));
+        assertThat(result.getAmount()).isEqualTo(BigDecimal.valueOf(60));
+        assertThat(result.getProductOptionId()).isEqualTo("option-1");
+    }
+
+    @Test
+    void createOrderDetail_ProductOptionNotAvailable_ThrowsConflictException() {
+        // Arrange
+        CreateOrderDetailRequest request = new CreateOrderDetailRequest();
+        request.setProductId("product-1");
+        request.setProductOptionId("option-1");
+        request.setQuantity(1);
+
+        Product product = createTestProduct(BigDecimal.valueOf(25));
+        ProductOption option =
+                ProductOption.builder()
+                        .id("option-1")
+                        .restaurantId(restaurantId)
+                        .name("Extra cheese")
+                        .priceAdjustment(BigDecimal.valueOf(5))
+                        .isAvailable(false)
+                        .build();
+
+        when(productRepository.findByIdAndRestaurantId("product-1", restaurantId))
+                .thenReturn(Optional.of(product));
+        when(productOptionRepository.findByIdAndRestaurantId("option-1", restaurantId))
+                .thenReturn(Optional.of(option));
+
+        // Act & Assert
+        assertThatThrownBy(() -> orderDetailService.createOrderDetail(testOrder, request))
+                .isInstanceOf(ConflictException.class)
+                .hasMessageContaining("Product option is not available");
     }
 
     // Helper methods

@@ -32,6 +32,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Financial invariant test for INV-02: Contiguous folios without gaps/duplicates.
@@ -161,6 +162,9 @@ class InvoiceFinancialInvariantTest {
                     executorService.submit(
                             () -> {
                                 try {
+                                    // Propagate tenant context to worker thread
+                                    TenantContext.setRestaurantId(restaurantId);
+
                                     // Wait for all threads to be ready (maximize concurrency)
                                     startLatch.await();
 
@@ -175,6 +179,7 @@ class InvoiceFinancialInvariantTest {
                                     errorCount.incrementAndGet();
                                     throw new RuntimeException(e);
                                 } finally {
+                                    TenantContext.clear();
                                     endLatch.countDown();
                                 }
                             });
@@ -239,6 +244,7 @@ class InvoiceFinancialInvariantTest {
     }
 
     /** Test that folio sequence is properly locked and prevents gaps. */
+    @Transactional
     @Test
     void folioSequenceLock_PessimisticLock_PreventsGaps() {
         // Arrange - Create sequence

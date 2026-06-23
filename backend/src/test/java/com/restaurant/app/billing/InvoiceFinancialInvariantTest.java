@@ -30,6 +30,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 /**
  * Financial invariant test for INV-02: Contiguous folios without gaps/duplicates.
@@ -58,6 +60,11 @@ class InvoiceFinancialInvariantTest {
     private String userId;
     private String personId;
     private Order testOrder;
+
+    @DynamicPropertySource
+    static void overrideDataSourceProperties(DynamicPropertyRegistry registry) {
+        MySQLTestcontainersConfig.overrideDataSourceProperties(registry);
+    }
 
     @BeforeEach
     void setUp() {

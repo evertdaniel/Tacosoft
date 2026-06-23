@@ -47,7 +47,8 @@ public class MySQLTestcontainersConfig {
             registry.add("spring.datasource.password", () -> dbPass != null ? dbPass : "");
             registry.add("spring.datasource.driver-class-name", () -> "com.mysql.cj.jdbc.Driver");
             registry.add(
-                    "spring.jpa.properties.hibernate.globally_quoted_identifiers", () -> "false");
+                    "spring.jpa.properties.hibernate.dialect",
+                    () -> "org.hibernate.dialect.MySQLDialect");
         } else if (MYSQL_CONTAINER != null) {
             // Use Testcontainers
             registry.add("spring.datasource.url", MYSQL_CONTAINER::getJdbcUrl);
@@ -55,7 +56,8 @@ public class MySQLTestcontainersConfig {
             registry.add("spring.datasource.password", MYSQL_CONTAINER::getPassword);
             registry.add("spring.datasource.driver-class-name", () -> "com.mysql.cj.jdbc.Driver");
             registry.add(
-                    "spring.jpa.properties.hibernate.globally_quoted_identifiers", () -> "false");
+                    "spring.jpa.properties.hibernate.dialect",
+                    () -> "org.hibernate.dialect.MySQLDialect");
         }
         registry.add("spring.flyway.enabled", () -> true);
         registry.add("spring.flyway.locations", () -> "classpath:db/migration");

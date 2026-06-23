@@ -46,5 +46,5 @@ Chain strategy: stacked-to-main
 
 ## Phase 4: Verification & Rollout
 
-- [ ] **4.1** Confirm CI passes on `main` and release works on test tag. Files: `.github/workflows/ci.yml`, `.github/workflows/release.yml`. AC: green check on `main` with artifacts; `v0.0.0-test` creates GHCR package with same tag.
-- [ ] **4.2** Record branch protection recommendation. Files: `README.md` or `design.md`. AC: note requiring `CI` status check on `main`.
+- [x] **4.1** Confirm CI passes on `main` and release works on test tag. Files: `.github/workflows/ci.yml`, `.github/workflows/release.yml`. AC: green check on `main` with artifacts; `v0.0.0-test` creates GHCR package with same tag.
+- [x] **4.2** Record branch protection recommendation. Files: `README.md` or `design.md`. AC: note requiring `CI` status check on `main`.

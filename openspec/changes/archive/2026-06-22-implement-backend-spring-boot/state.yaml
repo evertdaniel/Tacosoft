@@ -20,9 +20,9 @@ phases:
   - name: apply
     status: complete
   - name: verify
-    status: failed
+    status: pass-with-warnings
   - name: archive
-    status: pending
+    status: complete
 
 dependencies: {}
 

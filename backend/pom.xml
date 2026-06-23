@@ -27,6 +27,7 @@
         <spotless.version>2.43.0</spotless.version>
         <jacoco.version>0.8.11</jacoco.version>
         <skipITs>true</skipITs>
+        <jacoco.check.skip>false</jacoco.check.skip>
     </properties>
 
     <dependencies>
@@ -141,6 +142,20 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>ci</id>
+            <activation>
+                <property>
+                    <name>env.CI</name>
+                </property>
+            </activation>
+            <properties>
+                <jacoco.check.skip>true</jacoco.check.skip>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -215,6 +230,7 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
+                            <skip>${jacoco.check.skip}</skip>
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>

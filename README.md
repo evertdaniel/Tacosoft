@@ -1,5 +1,7 @@
 # Tacosoft - Sistema de Gestión para Restaurantes
 
+![CI](https://github.com/evertdaniel/Tacosoft/actions/workflows/ci.yml/badge.svg)
+
 API backend para la administración integral de restaurantes, construida con **Spring Boot 3.3**, **Java 21** y **Maven**. El sistema permite gestionar autenticación, usuarios, menús, mesas, órdenes, facturación, caja, reportes y proveedores, con soporte multi-tenant, control de acceso basado en roles (RBAC) y seguridad mediante JWT.
 
 ---
@@ -152,7 +154,7 @@ Verificá las versiones:
 
 ```bash
 java -version
-mvn -version
+./mvnw -version
 ```
 
 ---

@@ -33,7 +33,7 @@ rules:
   verify:
     test_command: "cd /home/desarrollo/github/Tacosoft && mvn -f backend/pom.xml test"
     build_command: "cd /home/desarrollo/github/Tacosoft && mvn -f backend/pom.xml clean verify"
-    coverage_threshold: 0.10
+    coverage_threshold: 0.80
   archive:
     - Warn before merging destructive deltas
     - Update OpenAPI annotations when endpoints change

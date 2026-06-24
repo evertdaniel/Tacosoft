@@ -6,6 +6,8 @@ import { MenuPage } from './MenuPage';
 import { useAuthStore, resetAuthStore } from '@/stores/auth.store';
 import { useTenantStore, resetTenantStore } from '@/stores/tenant.store';
 import { categoriesFixture, sectionsFixture } from '@/test/fixtures';
+import { server } from '@/test/server';
+import { http, HttpResponse } from 'msw';
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -65,5 +67,85 @@ describe('MenuPage', () => {
     await userEvent.click(screen.getByRole('tab', { name: /products/i }));
 
     await waitFor(() => expect(screen.getByRole('heading', { name: /products/i })).toBeInTheDocument());
+  });
+
+  it('opens the section create modal when Add Section is clicked', async () => {
+    render(<MenuPage />, { wrapper: createWrapper() });
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: /sections/i })).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: /add section/i }));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText(/create section/i)).toBeInTheDocument();
+  });
+
+  it('submits the section form and closes the modal', async () => {
+    render(<MenuPage />, { wrapper: createWrapper() });
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: /sections/i })).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: /add section/i }));
+
+    await userEvent.type(screen.getByLabelText(/name/i), 'Drinks');
+    await userEvent.clear(screen.getByLabelText(/display order/i));
+    await userEvent.type(screen.getByLabelText(/display order/i), '3');
+
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('opens the edit modal when Edit is clicked on a section', async () => {
+    render(<MenuPage />, { wrapper: createWrapper() });
+
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(sectionsFixture.length));
+
+    await userEvent.click(screen.getAllByRole('button', { name: /edit/i })[0]);
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByDisplayValue(sectionsFixture[0].name)).toBeInTheDocument();
+  });
+
+  it('deletes a section when Delete is clicked', async () => {
+    render(<MenuPage />, { wrapper: createWrapper() });
+
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(sectionsFixture.length));
+
+    await userEvent.click(screen.getAllByRole('button', { name: /delete/i })[0]);
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('shows an error message when the section create fails', async () => {
+    server.use(
+      http.post('http://localhost:8080/sections', () => {
+        return new HttpResponse(JSON.stringify({ message: 'Section create failed' }), { status: 500 });
+      })
+    );
+
+    render(<MenuPage />, { wrapper: createWrapper() });
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: /sections/i })).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: /add section/i }));
+
+    await userEvent.type(screen.getByLabelText(/name/i), 'Bad Section');
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    await waitFor(() => expect(screen.getByText(/section create failed/i)).toBeInTheDocument());
+  });
+
+  it('renders the production areas tab and opens its create modal', async () => {
+    render(<MenuPage />, { wrapper: createWrapper() });
+
+    await userEvent.click(screen.getByRole('tab', { name: /production areas/i }));
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: /production areas/i })).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: /add production area/i }));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText(/create production area/i)).toBeInTheDocument();
   });
 });

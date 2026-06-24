@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { LoginResponse } from '@/types/domain.types';
+import { dashboardReportFixture } from './fixtures';
 
 export const loginResponseFixture: LoginResponse = {
   token:
@@ -35,5 +36,8 @@ export const handlers = [
       status: 401,
       headers: { 'Content-Type': 'application/json' },
     });
+  }),
+  http.get('http://localhost:8080/reports/dashboard', () => {
+    return HttpResponse.json(dashboardReportFixture);
   }),
 ];

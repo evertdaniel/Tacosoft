@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate, RouteObject } from 'react-router-dom';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
+import { DashboardPage } from '@/features/dashboard/pages/DashboardPage';
 import { Shell } from '@/components/layout/Shell';
 import { Placeholder } from '@/components/layout/Placeholder';
 import { ProtectedRoute } from './guarded-routes';
@@ -18,7 +19,7 @@ export const routes: RouteObject[] = [
     ),
     children: [
       { index: true, element: <Navigate to="/dashboard" replace /> },
-      { path: 'dashboard', element: <Placeholder label="Dashboard" /> },
+      { path: 'dashboard', element: <DashboardPage /> },
       { path: 'tables', element: <Placeholder label="Tables" /> },
       { path: 'menu', element: <Placeholder label="Menu" /> },
       { path: 'orders', element: <Placeholder label="Orders" /> },

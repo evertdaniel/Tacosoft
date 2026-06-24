@@ -43,7 +43,7 @@ describe('App router', () => {
     expect(screen.getByRole('heading', { name: 'Sign in to Tacosoft' })).toBeInTheDocument();
   });
 
-  it('renders the shell with placeholder routes for authenticated users', () => {
+  it('renders the dashboard page for authenticated users', async () => {
     useAuthStore.setState({
       token: 'token',
       user: { id: 'u1', username: 'admin', firstName: 'Admin', lastName: 'User', email: 'a@a.com', active: true, primaryRole: { id: 'r1', name: 'ADMIN' }, restaurantRoles: [] },
@@ -65,11 +65,10 @@ describe('App router', () => {
     );
 
     expect(screen.getByRole('banner')).toBeInTheDocument();
-    expect(screen.getByTestId('dashboard-placeholder')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
   });
 
   it.each([
-    ['/dashboard', 'Dashboard'],
     ['/tables', 'Tables'],
     ['/menu', 'Menu'],
     ['/orders', 'Orders'],

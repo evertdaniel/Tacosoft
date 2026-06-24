@@ -6,7 +6,7 @@
 - [x] **2.1** [PR2a] Axios + auth/tenant stores (`src/api/axios.ts`, `src/stores/auth.store.ts`, `tenant.store.ts`) — headers/401/persist/expiry — 260 — 1.1
 - [x] **2.2** [PR2b] Login UI + protected routes (`src/api/auth.api.ts`, `src/features/auth/*`, `src/router/*`) — login + block dashboard — 240 — 2.1
 - [x] **3.1** [PR3] Responsive shell + role nav (`src/components/layout/*`) — desktop sidebar; mobile 375px; role filter — 360 — 2.2
-- [ ] **4.1** [PR4] Dashboard hook + KPI page (`src/api/reports.api.ts`, `src/features/dashboard/*`) — dashboard; 4 KPIs/skeleton/error — 280 — 3.1
+- [x] **4.1** [PR4] Dashboard hook + KPI page (`src/api/reports.api.ts`, `src/features/dashboard/*`) — dashboard; 4 KPIs/skeleton/error — 280 — 3.1
 - [ ] **5.1** [PR5] Tables grid + WS topic (`src/api/tables.api.ts`, `src/features/tables/*`, `useWebSocket.ts`) — list/status; WS invalidates — 320 — 4.1
 - [ ] **6.1** [PR6a] Menu list views (`src/features/menu/pages/*`, `src/api/menu.api.ts`) — section/category/product/option lists — 300 — 4.1
 - [ ] **6.2** [PR6b] Menu create/edit forms (`src/features/menu/components/*Form.tsx`) — submit create/edit forms — 320 — 6.1

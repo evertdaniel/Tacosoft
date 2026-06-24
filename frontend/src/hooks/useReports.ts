@@ -1,5 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { getSalesReport, getProductReport, getFinancialReport } from '@/api/reports.api';
+import {
+  getSalesReport,
+  getProductReport,
+  getFinancialReport,
+  getFootfallReport,
+  getStaffPlanningReport,
+} from '@/api/reports.api';
 import type { ReportDateRangeParams } from '@/types/domain.types';
 
 export function useSalesReport(params: ReportDateRangeParams) {
@@ -22,6 +28,22 @@ export function useFinancialReport(params: ReportDateRangeParams) {
   return useQuery({
     queryKey: ['reports', 'finances', params],
     queryFn: () => getFinancialReport(params),
+    enabled: Boolean(params.startDate) && Boolean(params.endDate),
+  });
+}
+
+export function useFootfallReport(params: ReportDateRangeParams) {
+  return useQuery({
+    queryKey: ['reports', 'footfall', params],
+    queryFn: () => getFootfallReport({ date: params.endDate }),
+    enabled: Boolean(params.startDate) && Boolean(params.endDate),
+  });
+}
+
+export function useStaffPlanningReport(params: ReportDateRangeParams) {
+  return useQuery({
+    queryKey: ['reports', 'staff-planning', params],
+    queryFn: () => getStaffPlanningReport({ date: params.endDate }),
     enabled: Boolean(params.startDate) && Boolean(params.endDate),
   });
 }

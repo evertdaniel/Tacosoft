@@ -1,11 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useSalesReport, useProductReport, useFinancialReport } from './useReports';
+import { useSalesReport, useProductReport, useFinancialReport, useFootfallReport, useStaffPlanningReport } from './useReports';
 import {
   salesSummaryFixture,
   productReportsFixture,
   financialReportFixture,
+  footfallReportFixture,
+  staffPlanningReportFixture,
   reportDateRangeFixture,
 } from '@/test/fixtures';
 import { server } from '@/test/server';
@@ -105,5 +107,61 @@ describe('useFinancialReport', () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
 
     expect(result.current.error?.message).toBe('Finances error');
+  });
+});
+
+describe('useFootfallReport', () => {
+  it('returns the footfall report for the end date of the range', async () => {
+    const { result } = renderHook(() => useFootfallReport(reportDateRangeFixture), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(result.current.data).toEqual(footfallReportFixture);
+  });
+
+  it('returns an error when the request fails', async () => {
+    server.use(
+      http.get('http://localhost:8080/reports/footfall', () => {
+        return new HttpResponse(JSON.stringify({ message: 'Footfall error' }), { status: 500 });
+      })
+    );
+
+    const { result } = renderHook(() => useFootfallReport(reportDateRangeFixture), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(result.current.error?.message).toBe('Footfall error');
+  });
+});
+
+describe('useStaffPlanningReport', () => {
+  it('returns the staff planning report for the end date of the range', async () => {
+    const { result } = renderHook(() => useStaffPlanningReport(reportDateRangeFixture), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(result.current.data).toEqual(staffPlanningReportFixture);
+  });
+
+  it('returns an error when the request fails', async () => {
+    server.use(
+      http.get('http://localhost:8080/reports/staff-planning', () => {
+        return new HttpResponse(JSON.stringify({ message: 'Staff planning error' }), { status: 500 });
+      })
+    );
+
+    const { result } = renderHook(() => useStaffPlanningReport(reportDateRangeFixture), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(result.current.error?.message).toBe('Staff planning error');
   });
 });

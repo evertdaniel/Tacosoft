@@ -1,9 +1,16 @@
-import { describe, it, expect } from 'vitest';
-import { getSalesReport, getProductReport, getFinancialReport } from './reports.api';
+import {
+  getSalesReport,
+  getProductReport,
+  getFinancialReport,
+  getFootfallReport,
+  getStaffPlanningReport,
+} from './reports.api';
 import {
   salesSummaryFixture,
   productReportsFixture,
   financialReportFixture,
+  footfallReportFixture,
+  staffPlanningReportFixture,
   reportDateRangeFixture,
 } from '@/test/fixtures';
 import { server } from '@/test/server';
@@ -67,6 +74,52 @@ describe('reports API', () => {
 
     await expect(getFinancialReport(reportDateRangeFixture)).rejects.toThrow(
       'Financial report error'
+    );
+  });
+
+  it('getFootfallReport sends date and returns footfall report', async () => {
+    const report = await getFootfallReport({ date: reportDateRangeFixture.endDate });
+
+    expect(report.orderDate).toBe(footfallReportFixture.orderDate);
+    expect(report.hourlyTraffic).toEqual(footfallReportFixture.hourlyTraffic);
+    expect(report.peakHours.totalOrders).toBe(footfallReportFixture.peakHours.totalOrders);
+  });
+
+  it('getFootfallReport throws when the request fails', async () => {
+    server.use(
+      http.get('http://localhost:8080/reports/footfall', () => {
+        return new HttpResponse(JSON.stringify({ message: 'Footfall report error' }), {
+          status: 500,
+        });
+      })
+    );
+
+    await expect(getFootfallReport({ date: reportDateRangeFixture.endDate })).rejects.toThrow(
+      'Footfall report error'
+    );
+  });
+
+  it('getStaffPlanningReport sends date and returns staff planning report', async () => {
+    const report = await getStaffPlanningReport({ date: reportDateRangeFixture.endDate });
+
+    expect(report.date).toBe(staffPlanningReportFixture.date);
+    expect(report.hourlyWorkload).toEqual(staffPlanningReportFixture.hourlyWorkload);
+    expect(report.staffRecommendation.recommendedStaff).toBe(
+      staffPlanningReportFixture.staffRecommendation.recommendedStaff
+    );
+  });
+
+  it('getStaffPlanningReport throws when the request fails', async () => {
+    server.use(
+      http.get('http://localhost:8080/reports/staff-planning', () => {
+        return new HttpResponse(JSON.stringify({ message: 'Staff planning report error' }), {
+          status: 500,
+        });
+      })
+    );
+
+    await expect(getStaffPlanningReport({ date: reportDateRangeFixture.endDate })).rejects.toThrow(
+      'Staff planning report error'
     );
   });
 });

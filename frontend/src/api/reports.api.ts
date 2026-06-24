@@ -6,6 +6,10 @@ import type {
   ProductReportDto,
   FinancialReportDto,
   ReportDateRangeParams,
+  FootfallReportDto,
+  StaffPlanningReportDto,
+  FootfallReportParams,
+  StaffPlanningReportParams,
 } from '@/types/domain.types';
 
 function getErrorMessage(error: unknown): string {
@@ -48,6 +52,30 @@ export async function getFinancialReport(params: ReportDateRangeParams): Promise
   try {
     const { data } = await api.get<FinancialReportDto>('/reports/finances', {
       params: { startDate: params.startDate, endDate: params.endDate },
+    });
+    return data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
+
+export async function getFootfallReport(params: FootfallReportParams): Promise<FootfallReportDto> {
+  try {
+    const { data } = await api.get<FootfallReportDto>('/reports/footfall', {
+      params: { date: params.date },
+    });
+    return data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
+
+export async function getStaffPlanningReport(
+  params: StaffPlanningReportParams
+): Promise<StaffPlanningReportDto> {
+  try {
+    const { data } = await api.get<StaffPlanningReportDto>('/reports/staff-planning', {
+      params: { date: params.date },
     });
     return data;
   } catch (error) {

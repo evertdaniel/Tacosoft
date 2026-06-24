@@ -7,6 +7,11 @@ import {
   ProductDto,
   ProductOptionDto,
   ProductionAreaDto,
+  OrderDto,
+  OrderDetailDto,
+  OrderType,
+  OrderStatus,
+  OrderDetailStatus,
 } from '@/types/domain.types';
 
 export const dashboardReportFixture: DashboardReportDto = {
@@ -101,4 +106,103 @@ export function createSectionFixture(id: string, name: string, displayOrder = 1)
 
 export function createCategoryFixture(id: string, name: string, sectionId: string): CategoryDto {
   return { id, name, description: '', sectionId, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' };
+}
+
+export const orderDetailFixture: OrderDetailDto = {
+  id: 'detail-1',
+  orderId: 'order-1',
+  productId: 'product-1',
+  productName: 'Carne Asada Taco',
+  quantity: 2,
+  unitPrice: 8500,
+  amount: 17000,
+  status: 'PENDING',
+  notes: null,
+  productOptionId: null,
+  productOptionName: null,
+  priceAdjustment: 0,
+  createdAt: '2024-01-01T12:00:00Z',
+  updatedAt: '2024-01-01T12:00:00Z',
+};
+
+export const orderDetailReadyFixture: OrderDetailDto = {
+  ...orderDetailFixture,
+  id: 'detail-2',
+  status: 'READY',
+};
+
+export const ordersFixture: OrderDto[] = [
+  {
+    id: 'order-1',
+    num: 1,
+    type: 'IN_PLACE',
+    status: 'PENDING',
+    total: 17000,
+    people: 2,
+    tableId: 'table-1',
+    clientId: null,
+    details: [orderDetailFixture],
+    createdAt: '2024-01-01T12:00:00Z',
+    updatedAt: '2024-01-01T12:00:00Z',
+  },
+  {
+    id: 'order-2',
+    num: 2,
+    type: 'TAKE_AWAY',
+    status: 'IN_PROGRESS',
+    total: 15500,
+    people: 1,
+    tableId: null,
+    clientId: null,
+    details: [orderDetailReadyFixture],
+    createdAt: '2024-01-01T12:30:00Z',
+    updatedAt: '2024-01-01T12:30:00Z',
+  },
+];
+
+export function createOrderFixture(
+  id: string,
+  num: number,
+  type: OrderType,
+  status: OrderStatus,
+  details: OrderDetailDto[] = []
+): OrderDto {
+  return {
+    id,
+    num,
+    type,
+    status,
+    total: details.reduce((sum, d) => sum + d.amount, 0),
+    people: 1,
+    tableId: type === 'IN_PLACE' ? 'table-1' : null,
+    clientId: null,
+    details,
+    createdAt: '2024-01-01T12:00:00Z',
+    updatedAt: '2024-01-01T12:00:00Z',
+  };
+}
+
+export function createOrderDetailFixture(
+  id: string,
+  productId: string,
+  productName: string,
+  status: OrderDetailStatus,
+  quantity = 1
+): OrderDetailDto {
+  return {
+    id,
+    orderId: 'order-1',
+    productId,
+    productName,
+    quantity,
+    unitPrice: 8500,
+    amount: 8500 * quantity,
+    status,
+    notes: null,
+    productOptionId: null,
+    productOptionName: null,
+    priceAdjustment: 0,
+    createdAt: '2024-01-01T12:00:00Z',
+    updatedAt: '2024-01-01T12:00:00Z',
+  };
 }

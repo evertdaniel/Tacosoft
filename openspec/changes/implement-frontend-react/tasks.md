@@ -13,7 +13,7 @@
 - [x] **7.1** [PR7a] Orders list/create/detail (`src/features/orders/*`, `src/api/orders.api.ts`) — create order; detail — 340 — 5.1, 6.1
 - [x] **7.2** [PR7b] Kitchen + WS orders (`src/features/orders/pages/KitchenPage.tsx`, `useWebSocket.ts`) — WS refreshes kitchen — 280 — 7.1
 - [x] **8.1** [PR8] Billing invoices + payment (`src/features/billing/*`, `src/api/billing.api.ts`) — unpaid list; invoice pay — 280 — 7.1
-- [ ] **9.1** [PR9] Cash registers + X/Z reports (`src/features/cash/*`, `src/api/cash.api.ts`) — open/close; X/Z — 260 — 4.1
+- [x] **9.1** [PR9] Cash registers + X/Z reports (`src/features/cash/*`, `src/api/cash.api.ts`) — open/close; X/Z — 260 — 4.1
 - [ ] **10.1** [PR10a] Sales/product/financial reports (`src/features/reports/pages/*ReportPage.tsx`, `DateRangeFilter.tsx`) — charts/empty state — 300 — 4.1
 - [ ] **10.2** [PR10b] Footfall/staff planning reports (`src/features/reports/pages/*ReportPage.tsx`) — date filter reports — 240 — 10.1
 - [ ] **11.1** [PR11] Supplier CRUD (`src/features/suppliers/*`, `src/api/suppliers.api.ts`) — search, create, deactivate — 260 — 4.1

@@ -257,3 +257,27 @@ export interface CreateOrderBody {
 export interface UpdateOrderDetailStatusBody {
   status: OrderDetailStatus;
 }
+
+export type InvoiceStatus = 'PAID' | 'UNPAID';
+
+export type PaymentMethod = 'CASH' | 'CREDIT_CARD' | 'TRANSFER';
+
+export interface InvoiceDto {
+  id: string;
+  restaurantId: string;
+  orderId: string;
+  folio: number;
+  subtotal: number;
+  tax: number;
+  total: number;
+  isPaid: boolean;
+  paymentMethod: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaymentBody {
+  amount: number;
+  paymentMethod: PaymentMethod;
+  referenceId?: string;
+}

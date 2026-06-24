@@ -12,6 +12,8 @@ import {
   OrderType,
   OrderStatus,
   OrderDetailStatus,
+  InvoiceDto,
+  PaymentMethod,
 } from '@/types/domain.types';
 
 export const dashboardReportFixture: DashboardReportDto = {
@@ -206,3 +208,61 @@ export function createOrderDetailFixture(
     updatedAt: '2024-01-01T12:00:00Z',
   };
 }
+
+export const invoicesFixture: InvoiceDto[] = [
+  {
+    id: 'invoice-1',
+    restaurantId: 'rest-1',
+    orderId: 'order-1',
+    folio: 1001,
+    subtotal: 17000,
+    tax: 3230,
+    total: 20230,
+    isPaid: false,
+    paymentMethod: null,
+    createdAt: '2024-01-01T12:00:00Z',
+    updatedAt: '2024-01-01T12:00:00Z',
+  },
+  {
+    id: 'invoice-2',
+    restaurantId: 'rest-1',
+    orderId: 'order-2',
+    folio: 1002,
+    subtotal: 15500,
+    tax: 2945,
+    total: 18445,
+    isPaid: true,
+    paymentMethod: 'CASH',
+    createdAt: '2024-01-01T13:00:00Z',
+    updatedAt: '2024-01-01T13:30:00Z',
+  },
+];
+
+export const unpaidInvoicesFixture: InvoiceDto[] = invoicesFixture.filter((invoice) => !invoice.isPaid);
+
+export function createInvoiceFixture(
+  id: string,
+  folio: number,
+  isPaid: boolean,
+  paymentMethod: PaymentMethod | null = null
+): InvoiceDto {
+  return {
+    id,
+    restaurantId: 'rest-1',
+    orderId: 'order-1',
+    folio,
+    subtotal: 17000,
+    tax: 3230,
+    total: 20230,
+    isPaid,
+    paymentMethod,
+    createdAt: '2024-01-01T12:00:00Z',
+    updatedAt: '2024-01-01T12:00:00Z',
+  };
+}
+
+export const paymentBodyFixture = {
+  amount: 20230,
+  paymentMethod: 'CASH' as PaymentMethod,
+  referenceId: 'ref-123',
+};

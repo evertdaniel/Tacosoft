@@ -19,6 +19,10 @@ import {
   CloseCashRegisterBody,
   XReportDto,
   ZReportDto,
+  SalesSummaryDto,
+  ProductReportDto,
+  FinancialReportDto,
+  ReportDateRangeParams,
 } from '@/types/domain.types';
 
 export const dashboardReportFixture: DashboardReportDto = {
@@ -327,4 +331,97 @@ export const zReportFixture: ZReportDto = {
   incomeCount: 5,
   expenseCount: 2,
   status: 'BALANCED',
+};
+
+export const reportDateRangeFixture: ReportDateRangeParams = {
+  startDate: '2024-01-01',
+  endDate: '2024-01-31',
+};
+
+export const salesSummaryFixture: SalesSummaryDto = {
+  totalRevenue: 500000,
+  totalInvoices: 45,
+  averageTicket: 11111.11,
+  topProducts: [
+    {
+      productId: 'product-1',
+      productName: 'Carne Asada Taco',
+      totalQuantity: 120,
+      totalRevenue: 102000,
+      orderCount: 80,
+    },
+    {
+      productId: 'product-2',
+      productName: 'Chicken Burrito',
+      totalQuantity: 60,
+      totalRevenue: 93000,
+      orderCount: 40,
+    },
+  ],
+  periodComparison: {
+    currentRevenue: 500000,
+    previousRevenue: 450000,
+    growth: 50000,
+    growthPercentage: 11.11,
+  },
+};
+
+export const productReportsFixture: ProductReportDto[] = [
+  {
+    productId: 'product-1',
+    productName: 'Carne Asada Taco',
+    orderCount: 80,
+    totalQuantity: 120,
+    totalRevenue: 102000,
+    unitCost: 3500,
+    totalMargin: 60000,
+    marginPercentage: 58.82,
+    currentStock: 50,
+    stockTurnoverDays: 12,
+  },
+  {
+    productId: 'product-2',
+    productName: 'Chicken Burrito',
+    orderCount: 40,
+    totalQuantity: 60,
+    totalRevenue: 93000,
+    unitCost: 7000,
+    totalMargin: 51000,
+    marginPercentage: 54.84,
+    currentStock: 30,
+    stockTurnoverDays: 15,
+  },
+];
+
+export const financialReportFixture: FinancialReportDto = {
+  transactionDate: '2024-01-01',
+  income: [
+    { paymentMethod: 'CASH', transactionCount: 20, totalAmount: 150000 },
+    { paymentMethod: 'CREDIT_CARD', transactionCount: 15, totalAmount: 200000 },
+  ],
+  expenses: [
+    { paymentMethod: 'CASH', transactionCount: 5, totalAmount: 30000 },
+    { paymentMethod: 'TRANSFER', transactionCount: 2, totalAmount: 20000 },
+  ],
+  netCashFlow: 300000,
+  cashRegisterSummary: {
+    openRegisters: 1,
+    closedRegisters: 0,
+    totalOpeningBalance: 50000,
+    totalClosingBalance: 0,
+    totalIncome: 350000,
+    totalExpenses: 50000,
+    expectedBalance: 350000,
+    actualBalance: 0,
+    discrepancy: -350000,
+  },
+  invoiceSummary: {
+    totalInvoices: 45,
+    paidInvoices: 35,
+    unpaidInvoices: 10,
+    totalInvoiced: 500000,
+    totalPaid: 400000,
+    totalPending: 100000,
+    paymentRate: 77.78,
+  },
 };

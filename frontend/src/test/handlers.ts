@@ -15,6 +15,9 @@ import {
   activeCashRegisterFixture,
   xReportFixture,
   zReportFixture,
+  salesSummaryFixture,
+  productReportsFixture,
+  financialReportFixture,
 } from './fixtures';
 
 export const loginResponseFixture: LoginResponse = {
@@ -213,5 +216,14 @@ export const handlers = [
   }),
   http.get('http://localhost:8080/cash-registers/z-report', () => {
     return HttpResponse.json(zReportFixture);
+  }),
+  http.get('http://localhost:8080/reports/sales', () => {
+    return HttpResponse.json(salesSummaryFixture);
+  }),
+  http.get('http://localhost:8080/reports/products', () => {
+    return HttpResponse.json(productReportsFixture);
+  }),
+  http.get('http://localhost:8080/reports/finances', () => {
+    return HttpResponse.json(financialReportFixture);
   }),
 ];

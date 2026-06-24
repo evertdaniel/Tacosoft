@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { LoginResponse, TableDto, TableStatus, OrderDetailDto } from '@/types/domain.types';
+import { LoginResponse, TableDto, TableStatus, OrderDetailDto, InvoiceDto } from '@/types/domain.types';
 import {
   dashboardReportFixture,
   tablesFixture,
@@ -9,6 +9,8 @@ import {
   productOptionsFixture,
   productionAreasFixture,
   ordersFixture,
+  invoicesFixture,
+  unpaidInvoicesFixture,
 } from './fixtures';
 
 export const loginResponseFixture: LoginResponse = {
@@ -157,6 +159,24 @@ export const handlers = [
     const body = (await request.json()) as { status?: string };
     const detail = ordersFixture.flatMap((o) => o.details).find((d) => d.id === params.id) ?? ordersFixture[0].details[0];
     const updated: OrderDetailDto = { ...detail, id: params.id as string, status: (body.status ?? detail.status) as OrderDetailDto['status'] };
+    return HttpResponse.json(updated);
+  }),
+  http.get('http://localhost:8080/invoices', () => {
+    return HttpResponse.json(invoicesFixture);
+  }),
+  http.get('http://localhost:8080/invoices/unpaid', () => {
+    return HttpResponse.json(unpaidInvoicesFixture);
+  }),
+  http.post('http://localhost:8080/invoices/:id/pay', async ({ request, params }) => {
+    const body = (await request.json()) as { amount?: number; paymentMethod?: string; referenceId?: string };
+    const invoice = invoicesFixture.find((i) => i.id === params.id) ?? invoicesFixture[0];
+    const updated: InvoiceDto = {
+      ...invoice,
+      id: params.id as string,
+      isPaid: true,
+      paymentMethod: body.paymentMethod ?? invoice.paymentMethod,
+      updatedAt: '2024-01-01T14:00:00Z',
+    };
     return HttpResponse.json(updated);
   }),
 ];

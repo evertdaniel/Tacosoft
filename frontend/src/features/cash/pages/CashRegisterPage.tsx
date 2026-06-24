@@ -28,7 +28,7 @@ export function CashRegisterPage() {
     error: activeErrorObj,
     refetch: refetchActive,
   } = useActiveCashRegister();
-  const { data: xReport } = useXReport({ enabled: activeRegister?.status === 'OPEN' });
+  const { data: xReport } = useXReport();
   const { data: zReport } = useZReport();
   const openRegister = useOpenCashRegister();
   const closeRegister = useCloseCashRegister();

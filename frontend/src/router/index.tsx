@@ -7,6 +7,7 @@ import { OrdersPage } from '@/features/orders/pages/OrdersPage';
 import { OrderDetailPage } from '@/features/orders/pages/OrderDetailPage';
 import { KitchenPage } from '@/features/orders/pages/KitchenPage';
 import { InvoicesPage } from '@/features/billing/pages/InvoicesPage';
+import { CashRegisterPage } from '@/features/cash/pages/CashRegisterPage';
 import { Shell } from '@/components/layout/Shell';
 import { Placeholder } from '@/components/layout/Placeholder';
 import { ProtectedRoute } from './guarded-routes';
@@ -32,7 +33,7 @@ export const routes: RouteObject[] = [
       { path: 'orders/:id', element: <OrderDetailPage /> },
       { path: 'kitchen', element: <KitchenPage /> },
       { path: 'billing', element: <InvoicesPage /> },
-      { path: 'cash', element: <Placeholder label="Cash" /> },
+      { path: 'cash', element: <CashRegisterPage /> },
       { path: 'reports', element: <Placeholder label="Reports" /> },
       { path: 'suppliers', element: <Placeholder label="Suppliers" /> },
     ],

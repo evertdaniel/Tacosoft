@@ -60,3 +60,62 @@ export interface TableDto {
 export interface UpdateTableStatusBody {
   status: TableStatus;
 }
+
+export type ProductStatus = 'AVAILABLE' | 'OUT_OF_STOCK' | 'OUT_OF_SEASON';
+
+export interface SectionDto {
+  id: string;
+  restaurantId: string;
+  name: string;
+  description: string;
+  displayOrder: number;
+  isActive: boolean;
+}
+
+export interface CategoryDto {
+  id: string;
+  name: string;
+  description: string;
+  sectionId: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductDto {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  categoryId: string;
+  taxRate: number;
+  stock: number;
+  manageStock: boolean;
+  status: ProductStatus;
+  imageUrl: string | null;
+  preparationTime: number;
+  isActive: boolean;
+  productionAreaId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductOptionDto {
+  id: string;
+  name: string;
+  description: string;
+  priceAdjustment: number;
+  productId: string;
+  isDefault: boolean;
+  isAvailable: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductionAreaDto {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}

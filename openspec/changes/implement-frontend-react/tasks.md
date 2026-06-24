@@ -8,7 +8,7 @@
 - [x] **3.1** [PR3] Responsive shell + role nav (`src/components/layout/*`) — desktop sidebar; mobile 375px; role filter — 360 — 2.2
 - [x] **4.1** [PR4] Dashboard hook + KPI page (`src/api/reports.api.ts`, `src/features/dashboard/*`) — dashboard; 4 KPIs/skeleton/error — 280 — 3.1
 - [x] **5.1** [PR5] Tables grid + WS topic (`src/api/tables.api.ts`, `src/features/tables/*`, `useWebSocket.ts`) — list/status; WS invalidates — 320 — 4.1
-- [ ] **6.1** [PR6a] Menu list views (`src/features/menu/pages/*`, `src/api/menu.api.ts`) — section/category/product/option lists — 300 — 4.1
+- [x] **6.1** [PR6a] Menu list views (`src/features/menu/pages/*`, `src/api/menu.api.ts`) — section/category/product/option lists — 300 — 4.1
 - [ ] **6.2** [PR6b] Menu create/edit forms (`src/features/menu/components/*Form.tsx`) — submit create/edit forms — 320 — 6.1
 - [ ] **7.1** [PR7a] Orders list/create/detail (`src/features/orders/*`, `src/api/orders.api.ts`) — create order; detail — 340 — 5.1, 6.1
 - [ ] **7.2** [PR7b] Kitchen + WS orders (`src/features/orders/pages/KitchenPage.tsx`, `useWebSocket.ts`) — WS refreshes kitchen — 280 — 7.1

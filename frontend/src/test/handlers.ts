@@ -1,6 +1,14 @@
 import { http, HttpResponse } from 'msw';
 import { LoginResponse, TableDto, TableStatus } from '@/types/domain.types';
-import { dashboardReportFixture, tablesFixture } from './fixtures';
+import {
+  dashboardReportFixture,
+  tablesFixture,
+  sectionsFixture,
+  categoriesFixture,
+  productsFixture,
+  productOptionsFixture,
+  productionAreasFixture,
+} from './fixtures';
 
 export const loginResponseFixture: LoginResponse = {
   token:
@@ -48,5 +56,20 @@ export const handlers = [
     const table = tablesFixture.find((t) => t.id === params.id) ?? tablesFixture[0];
     const updated: TableDto = { ...table, id: params.id as string, status: body.status ?? table.status };
     return HttpResponse.json(updated);
+  }),
+  http.get('http://localhost:8080/sections', () => {
+    return HttpResponse.json(sectionsFixture);
+  }),
+  http.get('http://localhost:8080/categories', () => {
+    return HttpResponse.json(categoriesFixture);
+  }),
+  http.get('http://localhost:8080/products', () => {
+    return HttpResponse.json(productsFixture);
+  }),
+  http.get('http://localhost:8080/product-options', () => {
+    return HttpResponse.json(productOptionsFixture);
+  }),
+  http.get('http://localhost:8080/production-areas', () => {
+    return HttpResponse.json(productionAreasFixture);
   }),
 ];

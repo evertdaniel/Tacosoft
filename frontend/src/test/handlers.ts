@@ -18,6 +18,8 @@ import {
   salesSummaryFixture,
   productReportsFixture,
   financialReportFixture,
+  footfallReportFixture,
+  staffPlanningReportFixture,
 } from './fixtures';
 
 export const loginResponseFixture: LoginResponse = {
@@ -225,5 +227,11 @@ export const handlers = [
   }),
   http.get('http://localhost:8080/reports/finances', () => {
     return HttpResponse.json(financialReportFixture);
+  }),
+  http.get('http://localhost:8080/reports/footfall', () => {
+    return HttpResponse.json(footfallReportFixture);
+  }),
+  http.get('http://localhost:8080/reports/staff-planning', () => {
+    return HttpResponse.json(staffPlanningReportFixture);
   }),
 ];

@@ -17,7 +17,7 @@
 - [x] **10.1** [PR10a] Sales/product/financial reports (`src/features/reports/pages/*ReportPage.tsx`, `DateRangeFilter.tsx`) — charts/empty state — 300 — 4.1
 - [x] **10.2** [PR10b] Footfall/staff planning reports (`src/features/reports/pages/*ReportPage.tsx`) — date filter reports — 240 — 10.1
 - [ ] **11.1** [PR11] Supplier CRUD (`src/features/suppliers/*`, `src/api/suppliers.api.ts`) — search, create, deactivate — 260 — 4.1
-- [ ] **12.1** [PR12] PWA manifest + offline test (`vite.config.ts`, `public/manifest.json`, `src/test/pwa-offline.test.tsx`) — manifest; offline pass — 220 — 11.1
+- [x] **12.1** [PR12] PWA manifest + offline test (`vite.config.ts`, `public/manifest.json`, `src/test/pwa-offline.test.tsx`) — manifest; offline pass — 220 — 11.1
 
 ## Review Workload Forecast
 

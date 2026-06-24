@@ -10,6 +10,8 @@ const { mockStorage } = vi.hoisted(() => ({
   mockStorage: {} as Record<string, string | null>,
 }));
 
+const useTokenExpiryMock = vi.hoisted(() => vi.fn());
+
 vi.mock('@/utils/storage', () => ({
   getItem: vi.fn(function getItem<T>(key: string): T | null {
     const raw = mockStorage[key];
@@ -30,6 +32,10 @@ vi.mock('@/utils/storage', () => ({
 
 vi.mock('@/utils/jwt', () => ({
   decodeExp: vi.fn(() => 9999999999),
+}));
+
+vi.mock('@/hooks/useTokenExpiry', () => ({
+  useTokenExpiry: useTokenExpiryMock,
 }));
 
 function createTestRouter(initialEntry: string) {
@@ -53,6 +59,12 @@ describe('App routing', () => {
     render(<App router={router} />);
 
     expect(await screen.findByRole('heading', { name: /sign in to tacosoft/i })).toBeInTheDocument();
+  });
+
+  it('sets up token expiry monitoring', () => {
+    render(<App router={createTestRouter('/login')} />);
+
+    expect(useTokenExpiryMock).toHaveBeenCalled();
   });
 
   it('renders the protected shell for authenticated users', async () => {

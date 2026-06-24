@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { LoginResponse, TableDto, TableStatus, OrderDetailDto, InvoiceDto } from '@/types/domain.types';
+import { LoginResponse, TableDto, TableStatus, OrderDetailDto, InvoiceDto, CashRegisterDto, ZReportDto } from '@/types/domain.types';
 import {
   dashboardReportFixture,
   tablesFixture,
@@ -11,6 +11,10 @@ import {
   ordersFixture,
   invoicesFixture,
   unpaidInvoicesFixture,
+  cashRegistersFixture,
+  activeCashRegisterFixture,
+  xReportFixture,
+  zReportFixture,
 } from './fixtures';
 
 export const loginResponseFixture: LoginResponse = {
@@ -178,5 +182,36 @@ export const handlers = [
       updatedAt: '2024-01-01T14:00:00Z',
     };
     return HttpResponse.json(updated);
+  }),
+  http.get('http://localhost:8080/cash-registers', () => {
+    return HttpResponse.json(cashRegistersFixture);
+  }),
+  http.get('http://localhost:8080/cash-registers/active', () => {
+    return HttpResponse.json(activeCashRegisterFixture);
+  }),
+  http.post('http://localhost:8080/cash-registers/open', async ({ request }) => {
+    const body = (await request.json()) as { openingAmount?: number };
+    const register: CashRegisterDto = {
+      ...activeCashRegisterFixture,
+      openingAmount: body.openingAmount ?? activeCashRegisterFixture.openingAmount,
+      id: 'cash-new',
+    };
+    return HttpResponse.json(register, { status: 201 });
+  }),
+  http.put('http://localhost:8080/cash-registers/:id/close', async ({ request, params }) => {
+    const body = (await request.json()) as { closingAmount?: number };
+    const register = cashRegistersFixture.find((c) => c.id === params.id) ?? cashRegistersFixture[0];
+    const zReport: ZReportDto = {
+      ...zReportFixture,
+      cashRegisterId: params.id as string,
+      declaredAmount: body.closingAmount ?? zReportFixture.declaredAmount,
+    };
+    return HttpResponse.json({ ...zReport, registerId: register.id });
+  }),
+  http.get('http://localhost:8080/cash-registers/x-report', () => {
+    return HttpResponse.json(xReportFixture);
+  }),
+  http.get('http://localhost:8080/cash-registers/z-report', () => {
+    return HttpResponse.json(zReportFixture);
   }),
 ];

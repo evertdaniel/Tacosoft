@@ -14,6 +14,11 @@ import {
   OrderDetailStatus,
   InvoiceDto,
   PaymentMethod,
+  CashRegisterDto,
+  OpenCashRegisterBody,
+  CloseCashRegisterBody,
+  XReportDto,
+  ZReportDto,
 } from '@/types/domain.types';
 
 export const dashboardReportFixture: DashboardReportDto = {
@@ -265,4 +270,61 @@ export const paymentBodyFixture = {
   amount: 20230,
   paymentMethod: 'CASH' as PaymentMethod,
   referenceId: 'ref-123',
+};
+
+export const cashRegistersFixture: CashRegisterDto[] = [
+  {
+    id: 'cash-1',
+    restaurantId: 'rest-1',
+    userId: 'user-1',
+    openingAmount: 50000,
+    closingAmount: null,
+    status: 'OPEN',
+    openedAt: '2024-01-01T08:00:00',
+    closedAt: null,
+  },
+  {
+    id: 'cash-2',
+    restaurantId: 'rest-1',
+    userId: 'user-1',
+    openingAmount: 30000,
+    closingAmount: 28000,
+    status: 'CLOSED',
+    openedAt: '2024-01-01T08:00:00',
+    closedAt: '2024-01-01T20:00:00',
+  },
+];
+
+export const activeCashRegisterFixture: CashRegisterDto = cashRegistersFixture[0];
+
+export const openCashRegisterBodyFixture: OpenCashRegisterBody = {
+  openingAmount: 50000,
+};
+
+export const closeCashRegisterBodyFixture: CloseCashRegisterBody = {
+  closingAmount: 75000,
+};
+
+export const xReportFixture: XReportDto = {
+  cashRegisterId: 'cash-1',
+  currentBalance: 75000,
+  openingAmount: 50000,
+  totalIncome: 30000,
+  totalExpenses: 5000,
+  transactionCount: 7,
+  incomeCount: 5,
+  expenseCount: 2,
+};
+
+export const zReportFixture: ZReportDto = {
+  cashRegisterId: 'cash-1',
+  openingAmount: 50000,
+  expectedAmount: 75000,
+  declaredAmount: 75000,
+  difference: 0,
+  totalIncome: 30000,
+  totalExpenses: 5000,
+  incomeCount: 5,
+  expenseCount: 2,
+  status: 'BALANCED',
 };

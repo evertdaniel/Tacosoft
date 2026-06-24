@@ -201,3 +201,59 @@ export interface UpdateProductionAreaBody {
   name?: string;
   description?: string;
 }
+
+export type OrderType = 'IN_PLACE' | 'TAKE_AWAY';
+
+export type OrderStatus = 'PENDING' | 'IN_PROGRESS' | 'READY' | 'DELIVERED' | 'CANCELLED' | 'CLOSED';
+
+export type OrderDetailStatus = 'PENDING' | 'IN_PROGRESS' | 'READY' | 'DELIVERED' | 'CANCELLED';
+
+export interface OrderDetailDto {
+  id: string;
+  orderId: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  amount: number;
+  status: OrderDetailStatus;
+  notes: string | null;
+  productOptionId: string | null;
+  productOptionName: string | null;
+  priceAdjustment: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderDto {
+  id: string;
+  num: number;
+  type: OrderType;
+  status: OrderStatus;
+  total: number;
+  people: number;
+  tableId: string | null;
+  clientId: string | null;
+  details: OrderDetailDto[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateOrderDetailBody {
+  productId: string;
+  quantity: number;
+  productOptionId?: string;
+  notes?: string;
+}
+
+export interface CreateOrderBody {
+  type: OrderType;
+  people: number;
+  tableId?: string;
+  clientId?: string;
+  details: CreateOrderDetailBody[];
+}
+
+export interface UpdateOrderDetailStatusBody {
+  status: OrderDetailStatus;
+}

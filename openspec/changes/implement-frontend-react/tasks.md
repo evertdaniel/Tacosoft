@@ -10,7 +10,7 @@
 - [x] **5.1** [PR5] Tables grid + WS topic (`src/api/tables.api.ts`, `src/features/tables/*`, `useWebSocket.ts`) — list/status; WS invalidates — 320 — 4.1
 - [x] **6.1** [PR6a] Menu list views (`src/features/menu/pages/*`, `src/api/menu.api.ts`) — section/category/product/option lists — 300 — 4.1
 - [x] **6.2** [PR6b] Menu create/edit forms (`src/features/menu/components/*Form.tsx`) — submit create/edit forms — 320 — 6.1
-- [ ] **7.1** [PR7a] Orders list/create/detail (`src/features/orders/*`, `src/api/orders.api.ts`) — create order; detail — 340 — 5.1, 6.1
+- [x] **7.1** [PR7a] Orders list/create/detail (`src/features/orders/*`, `src/api/orders.api.ts`) — create order; detail — 340 — 5.1, 6.1
 - [ ] **7.2** [PR7b] Kitchen + WS orders (`src/features/orders/pages/KitchenPage.tsx`, `useWebSocket.ts`) — WS refreshes kitchen — 280 — 7.1
 - [ ] **8.1** [PR8] Billing invoices + payment (`src/features/billing/*`, `src/api/billing.api.ts`) — unpaid list; invoice pay — 280 — 7.1
 - [ ] **9.1** [PR9] Cash registers + X/Z reports (`src/features/cash/*`, `src/api/cash.api.ts`) — open/close; X/Z — 260 — 4.1

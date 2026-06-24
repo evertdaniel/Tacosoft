@@ -4,6 +4,7 @@ import { createMemoryRouter } from 'react-router-dom';
 import App from './App';
 import { routes } from './router';
 import { useAuthStore, resetAuthStore } from '@/stores/auth.store';
+import { useTenantStore, resetTenantStore } from '@/stores/tenant.store';
 
 const { mockStorage } = vi.hoisted(() => ({
   mockStorage: {} as Record<string, string | null>,
@@ -45,6 +46,7 @@ describe('App routing', () => {
   beforeEach(() => {
     Object.keys(mockStorage).forEach((key) => delete mockStorage[key]);
     resetAuthStore();
+    resetTenantStore();
   });
 
   it('renders the login page at /login', async () => {
@@ -54,7 +56,7 @@ describe('App routing', () => {
     expect(await screen.findByRole('heading', { name: /sign in to tacosoft/i })).toBeInTheDocument();
   });
 
-  it('renders the protected shell placeholder for authenticated users', async () => {
+  it('renders the protected shell for authenticated users', async () => {
     useAuthStore.setState({
       token: 'valid-token',
       user: {
@@ -70,10 +72,16 @@ describe('App routing', () => {
       currentRestaurant: { id: 'rest-1', name: 'Taqueria Principal' },
       isAuthenticated: true,
     });
+    useTenantStore.setState({
+      currentRestaurantId: 'rest-1',
+      currentRole: { id: 'role-1', name: 'ADMIN' },
+      availableRoles: [],
+    });
 
-    const router = createTestRouter('/');
+    const router = createTestRouter('/dashboard');
     render(<App router={router} />);
 
-    expect(await screen.findByTestId('shell-placeholder')).toBeInTheDocument();
+    expect(await screen.findByRole('banner')).toBeInTheDocument();
+    expect(await screen.findByTestId('dashboard-placeholder')).toBeInTheDocument();
   });
 });

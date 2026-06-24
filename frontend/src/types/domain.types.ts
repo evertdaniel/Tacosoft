@@ -326,3 +326,81 @@ export interface ZReportDto {
   expenseCount: number;
   status: 'BALANCED' | 'DIFFERENCE';
 }
+
+export interface TopProductDto {
+  productId: string;
+  productName: string;
+  totalQuantity: number;
+  totalRevenue: number;
+  orderCount: number;
+}
+
+export interface PeriodComparisonDto {
+  currentRevenue: number;
+  previousRevenue: number;
+  growth: number;
+  growthPercentage: number | null;
+}
+
+export interface SalesSummaryDto {
+  totalRevenue: number;
+  totalInvoices: number;
+  averageTicket: number;
+  topProducts: TopProductDto[];
+  periodComparison: PeriodComparisonDto;
+}
+
+export interface ProductReportDto {
+  productId: string;
+  productName: string;
+  orderCount: number;
+  totalQuantity: number;
+  totalRevenue: number;
+  unitCost: number | null;
+  totalMargin: number;
+  marginPercentage: number | null;
+  currentStock: number | null;
+  stockTurnoverDays: number | null;
+}
+
+export interface TransactionSummaryDto {
+  paymentMethod: string;
+  transactionCount: number;
+  totalAmount: number;
+}
+
+export interface CashRegisterSummaryDto {
+  openRegisters: number;
+  closedRegisters: number;
+  totalOpeningBalance: number;
+  totalClosingBalance: number;
+  totalIncome: number;
+  totalExpenses: number;
+  expectedBalance: number;
+  actualBalance: number;
+  discrepancy: number;
+}
+
+export interface InvoiceSummaryDto {
+  totalInvoices: number;
+  paidInvoices: number;
+  unpaidInvoices: number;
+  totalInvoiced: number;
+  totalPaid: number;
+  totalPending: number;
+  paymentRate: number | null;
+}
+
+export interface FinancialReportDto {
+  transactionDate: string;
+  income: TransactionSummaryDto[];
+  expenses: TransactionSummaryDto[];
+  netCashFlow: number;
+  cashRegisterSummary: CashRegisterSummaryDto;
+  invoiceSummary: InvoiceSummaryDto;
+}
+
+export interface ReportDateRangeParams {
+  startDate: string;
+  endDate: string;
+}

@@ -42,3 +42,21 @@ export interface DashboardReportDto {
   totalTables: number;
   lowStockProducts: number;
 }
+
+export type TableStatus = 'AVAILABLE' | 'OCCUPIED' | 'RESERVED' | 'CLEANING';
+
+export interface TableDto {
+  id: string;
+  num: number;
+  seats: number;
+  status: TableStatus;
+  posX: number;
+  posY: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateTableStatusBody {
+  status: TableStatus;
+}

@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
-import { LoginResponse } from '@/types/domain.types';
-import { dashboardReportFixture } from './fixtures';
+import { LoginResponse, TableDto, TableStatus } from '@/types/domain.types';
+import { dashboardReportFixture, tablesFixture } from './fixtures';
 
 export const loginResponseFixture: LoginResponse = {
   token:
@@ -39,5 +39,14 @@ export const handlers = [
   }),
   http.get('http://localhost:8080/reports/dashboard', () => {
     return HttpResponse.json(dashboardReportFixture);
+  }),
+  http.get('http://localhost:8080/tables', () => {
+    return HttpResponse.json(tablesFixture);
+  }),
+  http.put('http://localhost:8080/tables/:id/status', async ({ request, params }) => {
+    const body = (await request.json()) as { status?: TableStatus };
+    const table = tablesFixture.find((t) => t.id === params.id) ?? tablesFixture[0];
+    const updated: TableDto = { ...table, id: params.id as string, status: body.status ?? table.status };
+    return HttpResponse.json(updated);
   }),
 ];

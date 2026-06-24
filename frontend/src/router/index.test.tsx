@@ -268,9 +268,7 @@ describe('App router', () => {
     expect(await screen.findByRole('heading', { name: 'Reports' })).toBeInTheDocument();
   });
 
-  it.each([
-    ['/suppliers', 'Suppliers'],
-  ])('renders the %s placeholder', (path, label) => {
+  it('renders the suppliers page for authenticated users', async () => {
     useAuthStore.setState({
       token: 'token',
       user: { id: 'u1', username: 'admin', firstName: 'Admin', lastName: 'User', email: 'a@a.com', active: true, primaryRole: { id: 'r1', name: 'ADMIN' }, restaurantRoles: [] },
@@ -284,13 +282,14 @@ describe('App router', () => {
       availableRoles: [],
     });
 
-    const router = createTestRouter(path);
+    const router = createTestRouter('/suppliers');
     render(
       <Providers>
         <RouterProvider router={router} />
       </Providers>
     );
 
-    expect(screen.getByText(`${label} page`)).toBeInTheDocument();
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Suppliers' })).toBeInTheDocument();
   });
 });

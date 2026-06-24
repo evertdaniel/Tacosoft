@@ -17,6 +17,21 @@ describe('getNavItems', () => {
     expect(paths).toContain('/suppliers');
   });
 
+  it('returns management items for MANAGER including suppliers', () => {
+    const items = getNavItems('MANAGER');
+    const paths = items.map((item: NavItem) => item.path);
+
+    expect(paths).toContain('/dashboard');
+    expect(paths).toContain('/tables');
+    expect(paths).toContain('/menu');
+    expect(paths).toContain('/orders');
+    expect(paths).toContain('/billing');
+    expect(paths).toContain('/cash');
+    expect(paths).toContain('/reports');
+    expect(paths).toContain('/suppliers');
+    expect(paths).not.toContain('/kitchen');
+  });
+
   it('returns kitchen-related items for COOK and hides billing', () => {
     const items = getNavItems('COOK');
     const paths = items.map((item: NavItem) => item.path);

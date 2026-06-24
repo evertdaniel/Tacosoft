@@ -21,6 +21,7 @@ const allItems: NavItem[] = [
 
 const rolePaths: Record<Role, string[]> = {
   ADMIN: allItems.map((item) => item.path),
+  MANAGER: ['/dashboard', '/tables', '/menu', '/orders', '/billing', '/cash', '/reports', '/suppliers'],
   WAITER: ['/dashboard', '/tables', '/orders'],
   COOK: ['/dashboard', '/orders', '/menu', '/kitchen'],
   CASHIER: ['/dashboard', '/billing', '/cash'],

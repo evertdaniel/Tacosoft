@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSalesReport, useProductReport, useFinancialReport } from '@/hooks/useReports';
+import { useSalesReport, useProductReport, useFinancialReport, useFootfallReport, useStaffPlanningReport } from '@/hooks/useReports';
 import { Loading } from '@/components/feedback/Loading';
 import { ErrorState } from '@/components/feedback/ErrorState';
 import { Button } from '@/components/ui/Button';
@@ -7,9 +7,11 @@ import { ReportDateFilter } from '../components/ReportDateFilter';
 import { SalesReportView } from '../components/SalesReportView';
 import { ProductReportView } from '../components/ProductReportView';
 import { FinancialReportView } from '../components/FinancialReportView';
+import { FootfallReportView } from '../components/FootfallReportView';
+import { StaffPlanningReportView } from '../components/StaffPlanningReportView';
 import type { DateRange } from '../components/ReportDateFilter';
 
-type ReportTab = 'sales' | 'products' | 'finances';
+type ReportTab = 'sales' | 'products' | 'finances' | 'footfall' | 'staff';
 
 function getDefaultDateRange(): DateRange {
   const end = new Date();
@@ -29,9 +31,19 @@ export function ReportsPage() {
   const salesQuery = useSalesReport(range);
   const productQuery = useProductReport(range);
   const financialQuery = useFinancialReport(range);
+  const footfallQuery = useFootfallReport(range);
+  const staffQuery = useStaffPlanningReport(range);
 
   const activeQuery =
-    activeTab === 'sales' ? salesQuery : activeTab === 'products' ? productQuery : financialQuery;
+    activeTab === 'sales'
+      ? salesQuery
+      : activeTab === 'products'
+        ? productQuery
+        : activeTab === 'finances'
+          ? financialQuery
+          : activeTab === 'footfall'
+            ? footfallQuery
+            : staffQuery;
 
   function renderActiveReport() {
     if (activeQuery.isLoading) {
@@ -57,6 +69,12 @@ export function ReportsPage() {
         {activeTab === 'finances' && financialQuery.data && (
           <FinancialReportView report={financialQuery.data} />
         )}
+        {activeTab === 'footfall' && footfallQuery.data && (
+          <FootfallReportView report={footfallQuery.data} />
+        )}
+        {activeTab === 'staff' && staffQuery.data && (
+          <StaffPlanningReportView report={staffQuery.data} />
+        )}
       </>
     );
   }
@@ -68,7 +86,7 @@ export function ReportsPage() {
       <ReportDateFilter startDate={range.startDate} endDate={range.endDate} onChange={setRange} />
 
       <div className="flex gap-2 border-b border-neutral-200 pb-1">
-        {(['sales', 'products', 'finances'] as ReportTab[]).map((tab) => (
+        {(['sales', 'products', 'finances', 'footfall', 'staff'] as ReportTab[]).map((tab) => (
           <Button
             key={tab}
             variant={activeTab === tab ? 'primary' : 'secondary'}
@@ -78,6 +96,8 @@ export function ReportsPage() {
             {tab === 'sales' && 'Sales'}
             {tab === 'products' && 'Products'}
             {tab === 'finances' && 'Finances'}
+            {tab === 'footfall' && 'Footfall'}
+            {tab === 'staff' && 'Staff'}
           </Button>
         ))}
       </div>

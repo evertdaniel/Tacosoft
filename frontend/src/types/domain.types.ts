@@ -404,3 +404,55 @@ export interface ReportDateRangeParams {
   startDate: string;
   endDate: string;
 }
+
+export interface HourlyFootfallDto {
+  hour: number;
+  orderCount: number;
+  totalPeople: number;
+  averagePeoplePerOrder: number;
+}
+
+export interface PeakHoursDto {
+  peakOrderHours: number[];
+  peakPeopleHours: number[];
+  totalOrders: number;
+  totalPeople: number;
+  averageOrdersPerHour: number;
+  averagePeoplePerHour: number;
+}
+
+export interface FootfallReportDto {
+  orderDate: string;
+  hourlyTraffic: HourlyFootfallDto[];
+  peakHours: PeakHoursDto;
+}
+
+export interface StaffShiftNeedDto {
+  hour: number;
+  activeOrders: number;
+  totalPeople: number;
+  workloadLevel: string;
+  recommendedStaff: number;
+}
+
+export interface StaffRecommendationDto {
+  minimumStaff: number;
+  recommendedStaff: number;
+  peakStaff: number;
+  peakHours: string[];
+  rationale: string;
+}
+
+export interface StaffPlanningReportDto {
+  date: string;
+  hourlyWorkload: StaffShiftNeedDto[];
+  staffRecommendation: StaffRecommendationDto;
+}
+
+export interface FootfallReportParams {
+  date: string;
+}
+
+export interface StaffPlanningReportParams {
+  date: string;
+}

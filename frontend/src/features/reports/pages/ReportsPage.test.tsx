@@ -6,7 +6,13 @@ import userEvent from '@testing-library/user-event';
 import { ReportsPage } from './ReportsPage';
 import { useAuthStore, resetAuthStore } from '@/stores/auth.store';
 import { useTenantStore, resetTenantStore } from '@/stores/tenant.store';
-import { salesSummaryFixture, productReportsFixture, financialReportFixture } from '@/test/fixtures';
+import {
+  salesSummaryFixture,
+  productReportsFixture,
+  financialReportFixture,
+  footfallReportFixture,
+  staffPlanningReportFixture,
+} from '@/test/fixtures';
 import { server } from '@/test/server';
 import { http, HttpResponse } from 'msw';
 
@@ -117,6 +123,28 @@ describe('ReportsPage', () => {
     await waitFor(() =>
       expect(screen.getByRole('heading', { name: /product report/i })).toBeInTheDocument()
     );
+  });
+
+  it('switches to footfall tab and renders footfall report', async () => {
+    renderReportsPage();
+
+    await userEvent.click(screen.getByRole('button', { name: /footfall/i }));
+
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: /footfall report/i })).toBeInTheDocument()
+    );
+    expect(screen.getByText(`Date: ${footfallReportFixture.orderDate}`)).toBeInTheDocument();
+  });
+
+  it('switches to staff planning tab and renders staff planning report', async () => {
+    renderReportsPage();
+
+    await userEvent.click(screen.getByRole('button', { name: /staff/i }));
+
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: /staff planning/i })).toBeInTheDocument()
+    );
+    expect(screen.getByText(`Date: ${staffPlanningReportFixture.date}`)).toBeInTheDocument();
   });
 });
 

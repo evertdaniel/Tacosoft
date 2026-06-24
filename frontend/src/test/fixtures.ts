@@ -23,6 +23,8 @@ import {
   ProductReportDto,
   FinancialReportDto,
   ReportDateRangeParams,
+  FootfallReportDto,
+  StaffPlanningReportDto,
 } from '@/types/domain.types';
 
 export const dashboardReportFixture: DashboardReportDto = {
@@ -423,5 +425,40 @@ export const financialReportFixture: FinancialReportDto = {
     totalPaid: 400000,
     totalPending: 100000,
     paymentRate: 77.78,
+  },
+};
+
+export const footfallReportFixture: FootfallReportDto = {
+  orderDate: '2024-01-15',
+  hourlyTraffic: [
+    { hour: 11, orderCount: 5, totalPeople: 12, averagePeoplePerOrder: 2.4 },
+    { hour: 12, orderCount: 18, totalPeople: 42, averagePeoplePerOrder: 2.33 },
+    { hour: 13, orderCount: 24, totalPeople: 58, averagePeoplePerOrder: 2.42 },
+    { hour: 19, orderCount: 20, totalPeople: 48, averagePeoplePerOrder: 2.4 },
+  ],
+  peakHours: {
+    peakOrderHours: [13],
+    peakPeopleHours: [13],
+    totalOrders: 67,
+    totalPeople: 160,
+    averageOrdersPerHour: 8.38,
+    averagePeoplePerHour: 20,
+  },
+};
+
+export const staffPlanningReportFixture: StaffPlanningReportDto = {
+  date: '2024-01-15',
+  hourlyWorkload: [
+    { hour: 11, activeOrders: 5, totalPeople: 12, workloadLevel: 'LOW', recommendedStaff: 2 },
+    { hour: 12, activeOrders: 18, totalPeople: 42, workloadLevel: 'HIGH', recommendedStaff: 5 },
+    { hour: 13, activeOrders: 24, totalPeople: 58, workloadLevel: 'PEAK', recommendedStaff: 7 },
+    { hour: 19, activeOrders: 20, totalPeople: 48, workloadLevel: 'HIGH', recommendedStaff: 6 },
+  ],
+  staffRecommendation: {
+    minimumStaff: 2,
+    recommendedStaff: 5,
+    peakStaff: 7,
+    peakHours: ['13:00', '19:00'],
+    rationale: 'Peak demand occurs during lunch and dinner hours.',
   },
 };

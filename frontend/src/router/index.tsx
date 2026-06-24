@@ -5,6 +5,7 @@ import { TablesPage } from '@/features/tables/pages/TablesPage';
 import { MenuPage } from '@/features/menu/pages/MenuPage';
 import { OrdersPage } from '@/features/orders/pages/OrdersPage';
 import { OrderDetailPage } from '@/features/orders/pages/OrderDetailPage';
+import { KitchenPage } from '@/features/orders/pages/KitchenPage';
 import { Shell } from '@/components/layout/Shell';
 import { Placeholder } from '@/components/layout/Placeholder';
 import { ProtectedRoute } from './guarded-routes';
@@ -28,6 +29,7 @@ export const routes: RouteObject[] = [
       { path: 'menu', element: <MenuPage /> },
       { path: 'orders', element: <OrdersPage /> },
       { path: 'orders/:id', element: <OrderDetailPage /> },
+      { path: 'kitchen', element: <KitchenPage /> },
       { path: 'billing', element: <Placeholder label="Billing" /> },
       { path: 'cash', element: <Placeholder label="Cash" /> },
       { path: 'reports', element: <Placeholder label="Reports" /> },

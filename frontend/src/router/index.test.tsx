@@ -193,8 +193,32 @@ describe('App router', () => {
     expect(await screen.findByText(/order #1/i)).toBeInTheDocument();
   });
 
+  it('renders the billing page for authenticated users', async () => {
+    useAuthStore.setState({
+      token: 'token',
+      user: { id: 'u1', username: 'admin', firstName: 'Admin', lastName: 'User', email: 'a@a.com', active: true, primaryRole: { id: 'r1', name: 'ADMIN' }, restaurantRoles: [] },
+      currentRestaurant: { id: 'rest-1', name: 'Taqueria Principal' },
+      expiresAt: null,
+      isAuthenticated: true,
+    });
+    useTenantStore.setState({
+      currentRestaurantId: 'rest-1',
+      currentRole: { id: 'r1', name: 'ADMIN' },
+      availableRoles: [],
+    });
+
+    const router = createTestRouter('/billing');
+    render(
+      <Providers>
+        <RouterProvider router={router} />
+      </Providers>
+    );
+
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Billing' })).toBeInTheDocument();
+  });
+
   it.each([
-    ['/billing', 'Billing'],
     ['/cash', 'Cash'],
     ['/reports', 'Reports'],
     ['/suppliers', 'Suppliers'],

@@ -1,8 +1,28 @@
-function App() {
+import { RouterProvider } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { router as defaultRouter } from './router';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: false,
+    },
+  },
+});
+
+interface AppProps {
+  router?: typeof defaultRouter;
+}
+
+function App({ router = defaultRouter }: AppProps) {
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-2xl font-semibold text-neutral-800">Hello, Tacosoft!</h1>
-    </main>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   );
 }
 

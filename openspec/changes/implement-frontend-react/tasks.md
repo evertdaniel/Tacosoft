@@ -4,7 +4,7 @@
 
 - [x] **1.1** [PR1] Vite React scaffold (`frontend/package.json`, `vite.config.ts`, `src/test/setup.ts`) — build/lint/test pass — 350 — —
 - [x] **2.1** [PR2a] Axios + auth/tenant stores (`src/api/axios.ts`, `src/stores/auth.store.ts`, `tenant.store.ts`) — headers/401/persist/expiry — 260 — 1.1
-- [ ] **2.2** [PR2b] Login UI + protected routes (`src/api/auth.api.ts`, `src/features/auth/*`, `src/router/*`) — login + block dashboard — 240 — 2.1
+- [x] **2.2** [PR2b] Login UI + protected routes (`src/api/auth.api.ts`, `src/features/auth/*`, `src/router/*`) — login + block dashboard — 240 — 2.1
 - [ ] **3.1** [PR3] Responsive shell + role nav (`src/components/layout/*`) — desktop sidebar; mobile 375px; role filter — 360 — 2.2
 - [ ] **4.1** [PR4] Dashboard hook + KPI page (`src/api/reports.api.ts`, `src/features/dashboard/*`) — dashboard; 4 KPIs/skeleton/error — 280 — 3.1
 - [ ] **5.1** [PR5] Tables grid + WS topic (`src/api/tables.api.ts`, `src/features/tables/*`, `useWebSocket.ts`) — list/status; WS invalidates — 320 — 4.1

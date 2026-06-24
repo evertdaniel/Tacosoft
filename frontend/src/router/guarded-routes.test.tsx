@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { createMemoryRouter } from 'react-router-dom';
-import App from './App';
-import { routes } from './router';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { ProtectedRoute } from './guarded-routes';
 import { useAuthStore, resetAuthStore } from '@/stores/auth.store';
 
 const { mockStorage } = vi.hoisted(() => ({
@@ -31,30 +30,41 @@ vi.mock('@/utils/jwt', () => ({
   decodeExp: vi.fn(() => 9999999999),
 }));
 
-function createTestRouter(initialEntry: string) {
-  return createMemoryRouter(routes, {
-    initialEntries: [initialEntry],
-    future: {
-      v7_startTransition: true,
-      v7_relativeSplatPath: true,
-    },
-  });
+function renderWithRouter(initialEntries: string[]) {
+  return render(
+    <MemoryRouter
+      initialEntries={initialEntries}
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
+      <Routes>
+        <Route path="/login" element={<div data-testid="login-page">Login</div>} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <div data-testid="dashboard-page">Dashboard</div>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </MemoryRouter>
+  );
 }
 
-describe('App routing', () => {
+describe('ProtectedRoute', () => {
   beforeEach(() => {
     Object.keys(mockStorage).forEach((key) => delete mockStorage[key]);
     resetAuthStore();
   });
 
-  it('renders the login page at /login', async () => {
-    const router = createTestRouter('/login');
-    render(<App router={router} />);
+  it('redirects unauthenticated users to /login', () => {
+    renderWithRouter(['/dashboard']);
 
-    expect(await screen.findByRole('heading', { name: /sign in to tacosoft/i })).toBeInTheDocument();
+    expect(screen.getByTestId('login-page')).toBeInTheDocument();
+    expect(screen.queryByTestId('dashboard-page')).not.toBeInTheDocument();
   });
 
-  it('renders the protected shell placeholder for authenticated users', async () => {
+  it('renders children when the user is authenticated', () => {
     useAuthStore.setState({
       token: 'valid-token',
       user: {
@@ -71,9 +81,9 @@ describe('App routing', () => {
       isAuthenticated: true,
     });
 
-    const router = createTestRouter('/');
-    render(<App router={router} />);
+    renderWithRouter(['/dashboard']);
 
-    expect(await screen.findByTestId('shell-placeholder')).toBeInTheDocument();
+    expect(screen.getByTestId('dashboard-page')).toBeInTheDocument();
+    expect(screen.queryByTestId('login-page')).not.toBeInTheDocument();
   });
 });

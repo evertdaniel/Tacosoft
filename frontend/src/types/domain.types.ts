@@ -281,3 +281,48 @@ export interface PaymentBody {
   paymentMethod: PaymentMethod;
   referenceId?: string;
 }
+
+export type CashRegisterStatus = 'OPEN' | 'CLOSED';
+
+export interface CashRegisterDto {
+  id: string;
+  restaurantId: string;
+  userId: string;
+  openingAmount: number;
+  closingAmount: number | null;
+  status: CashRegisterStatus;
+  openedAt: string;
+  closedAt: string | null;
+}
+
+export interface OpenCashRegisterBody {
+  openingAmount: number;
+}
+
+export interface CloseCashRegisterBody {
+  closingAmount: number;
+}
+
+export interface XReportDto {
+  cashRegisterId: string;
+  currentBalance: number;
+  openingAmount: number;
+  totalIncome: number;
+  totalExpenses: number;
+  transactionCount: number;
+  incomeCount: number;
+  expenseCount: number;
+}
+
+export interface ZReportDto {
+  cashRegisterId: string;
+  openingAmount: number;
+  expectedAmount: number;
+  declaredAmount: number;
+  difference: number;
+  totalIncome: number;
+  totalExpenses: number;
+  incomeCount: number;
+  expenseCount: number;
+  status: 'BALANCED' | 'DIFFERENCE';
+}

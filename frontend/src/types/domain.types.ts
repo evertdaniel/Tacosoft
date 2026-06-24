@@ -119,3 +119,85 @@ export interface ProductionAreaDto {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface CreateSectionBody {
+  name: string;
+  description?: string;
+  displayOrder: number;
+  isActive: boolean;
+}
+
+export interface UpdateSectionBody {
+  name?: string;
+  description?: string;
+  displayOrder: number;
+  isActive?: boolean;
+}
+
+export interface CreateCategoryBody {
+  name: string;
+  description?: string;
+  sectionId: string;
+}
+
+export interface UpdateCategoryBody {
+  name?: string;
+  description?: string;
+  isActive?: boolean;
+}
+
+export interface CreateProductBody {
+  name: string;
+  description?: string;
+  price: number;
+  categoryId: string;
+  taxRate?: number;
+  stock?: number;
+  manageStock?: boolean;
+  status?: ProductStatus;
+  imageUrl?: string;
+  preparationTime?: number;
+  isActive?: boolean;
+  productionAreaId?: string;
+}
+
+export interface UpdateProductBody {
+  name?: string;
+  description?: string;
+  price?: number;
+  taxRate?: number;
+  stock?: number;
+  manageStock?: boolean;
+  status?: ProductStatus;
+  imageUrl?: string;
+  preparationTime?: number;
+  isActive?: boolean;
+  productionAreaId?: string;
+}
+
+export interface CreateProductOptionBody {
+  name: string;
+  description?: string;
+  priceAdjustment: number;
+  productId: string;
+  isDefault?: boolean;
+  isAvailable?: boolean;
+}
+
+export interface UpdateProductOptionBody {
+  name?: string;
+  description?: string;
+  priceAdjustment?: number;
+  isDefault?: boolean;
+  isAvailable?: boolean;
+}
+
+export interface CreateProductionAreaBody {
+  name: string;
+  description?: string;
+}
+
+export interface UpdateProductionAreaBody {
+  name?: string;
+  description?: string;
+}

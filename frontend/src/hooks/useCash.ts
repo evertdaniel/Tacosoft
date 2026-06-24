@@ -45,10 +45,11 @@ export function useCloseCashRegister() {
   });
 }
 
-export function useXReport() {
+export function useXReport(options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: ['cash-registers', 'x-report'],
     queryFn: getXReport,
+    enabled: options.enabled,
   });
 }
 

@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { LoginResponse, TableDto, TableStatus, OrderDetailDto, InvoiceDto, CashRegisterDto, ZReportDto } from '@/types/domain.types';
+import { LoginResponse, TableDto, TableStatus, OrderDetailDto, InvoiceDto, CashRegisterDto, ZReportDto, SupplierDto } from '@/types/domain.types';
 import {
   dashboardReportFixture,
   tablesFixture,
@@ -20,6 +20,7 @@ import {
   financialReportFixture,
   footfallReportFixture,
   staffPlanningReportFixture,
+  suppliersFixture,
 } from './fixtures';
 
 export const loginResponseFixture: LoginResponse = {
@@ -233,5 +234,30 @@ export const handlers = [
   }),
   http.get('http://localhost:8080/reports/staff-planning', () => {
     return HttpResponse.json(staffPlanningReportFixture);
+  }),
+  http.get('http://localhost:8080/suppliers', () => {
+    return HttpResponse.json(suppliersFixture);
+  }),
+  http.get('http://localhost:8080/suppliers/search', ({ request }) => {
+    const url = new URL(request.url);
+    const name = url.searchParams.get('name') ?? '';
+    const filtered = suppliersFixture.filter((s) =>
+      s.name.toLowerCase().includes(name.toLowerCase())
+    );
+    return HttpResponse.json(filtered);
+  }),
+  http.get('http://localhost:8080/suppliers/:id', ({ params }) => {
+    const supplier = suppliersFixture.find((s) => s.id === params.id) ?? suppliersFixture[0];
+    return HttpResponse.json({ ...supplier, id: params.id as string });
+  }),
+  http.post('http://localhost:8080/suppliers', async ({ request }) => {
+    const body = (await request.json()) as Partial<SupplierDto>;
+    const supplier = suppliersFixture[0];
+    return HttpResponse.json({ ...supplier, ...body, id: 'supplier-new' }, { status: 201 });
+  }),
+  http.put('http://localhost:8080/suppliers/:id', async ({ request, params }) => {
+    const body = (await request.json()) as Partial<SupplierDto>;
+    const supplier = suppliersFixture.find((s) => s.id === params.id) ?? suppliersFixture[0];
+    return HttpResponse.json({ ...supplier, ...body, id: params.id as string });
   }),
 ];

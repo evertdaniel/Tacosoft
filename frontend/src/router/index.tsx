@@ -9,8 +9,8 @@ import { KitchenPage } from '@/features/orders/pages/KitchenPage';
 import { InvoicesPage } from '@/features/billing/pages/InvoicesPage';
 import { CashRegisterPage } from '@/features/cash/pages/CashRegisterPage';
 import { ReportsPage } from '@/features/reports/pages/ReportsPage';
+import { SuppliersPage } from '@/features/suppliers/pages/SuppliersPage';
 import { Shell } from '@/components/layout/Shell';
-import { Placeholder } from '@/components/layout/Placeholder';
 import { ProtectedRoute } from './guarded-routes';
 
 export const routes: RouteObject[] = [
@@ -36,7 +36,7 @@ export const routes: RouteObject[] = [
       { path: 'billing', element: <InvoicesPage /> },
       { path: 'cash', element: <CashRegisterPage /> },
       { path: 'reports', element: <ReportsPage /> },
-      { path: 'suppliers', element: <Placeholder label="Suppliers" /> },
+      { path: 'suppliers', element: <SuppliersPage /> },
     ],
   },
   {
@@ -47,7 +47,6 @@ export const routes: RouteObject[] = [
 
 export const router = createBrowserRouter(routes, {
   future: {
-    v7_startTransition: true,
     v7_relativeSplatPath: true,
   },
 });

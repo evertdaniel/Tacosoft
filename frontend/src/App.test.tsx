@@ -82,6 +82,6 @@ describe('App routing', () => {
     render(<App router={router} />);
 
     expect(await screen.findByRole('banner')).toBeInTheDocument();
-    expect(await screen.findByTestId('dashboard-placeholder')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
   });
 });

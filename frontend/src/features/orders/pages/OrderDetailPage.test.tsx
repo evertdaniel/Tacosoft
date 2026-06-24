@@ -6,7 +6,6 @@ import userEvent from '@testing-library/user-event';
 import { OrderDetailPage } from './OrderDetailPage';
 import { useAuthStore, resetAuthStore } from '@/stores/auth.store';
 import { useTenantStore, resetTenantStore } from '@/stores/tenant.store';
-import { ordersFixture } from '@/test/fixtures';
 import { server } from '@/test/server';
 import { http, HttpResponse } from 'msw';
 

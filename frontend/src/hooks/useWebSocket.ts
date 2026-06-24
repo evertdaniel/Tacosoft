@@ -7,7 +7,7 @@ import { useTenantStore } from '@/stores/tenant.store';
 
 const WS_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/ws`;
 
-export function useWebSocket() {
+export function useWebSocket(orderId?: string) {
   const token = useAuthStore((state) => state.token);
   const restaurantId = useTenantStore((state) => state.currentRestaurantId);
   const queryClient = useQueryClient();
@@ -27,6 +27,15 @@ export function useWebSocket() {
         client.subscribe(`/topic/restaurant/${restaurantId}/tables`, (_message: IMessage) => {
           queryClient.invalidateQueries({ queryKey: ['tables'] });
         });
+        client.subscribe(`/topic/restaurant/${restaurantId}/orders`, (_message: IMessage) => {
+          queryClient.invalidateQueries({ queryKey: ['orders'] });
+        });
+
+        if (orderId) {
+          client.subscribe(`/topic/restaurant/${restaurantId}/orders/${orderId}`, (_message: IMessage) => {
+            queryClient.invalidateQueries({ queryKey: ['orders', orderId] });
+          });
+        }
       },
       debug: () => {},
     });
@@ -38,5 +47,5 @@ export function useWebSocket() {
       client.deactivate();
       clientRef.current = null;
     };
-  }, [token, restaurantId, queryClient]);
+  }, [token, restaurantId, orderId, queryClient]);
 }

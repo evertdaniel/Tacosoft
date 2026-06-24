@@ -12,6 +12,7 @@ const allItems: NavItem[] = [
   { label: 'Tables', path: '/tables' },
   { label: 'Menu', path: '/menu' },
   { label: 'Orders', path: '/orders' },
+  { label: 'Kitchen', path: '/kitchen' },
   { label: 'Billing', path: '/billing' },
   { label: 'Cash', path: '/cash' },
   { label: 'Reports', path: '/reports' },
@@ -21,7 +22,7 @@ const allItems: NavItem[] = [
 const rolePaths: Record<Role, string[]> = {
   ADMIN: allItems.map((item) => item.path),
   WAITER: ['/dashboard', '/tables', '/orders'],
-  COOK: ['/dashboard', '/orders', '/menu'],
+  COOK: ['/dashboard', '/orders', '/menu', '/kitchen'],
   CASHIER: ['/dashboard', '/billing', '/cash'],
 };
 

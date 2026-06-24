@@ -10,6 +10,7 @@ describe('getNavItems', () => {
     expect(paths).toContain('/tables');
     expect(paths).toContain('/menu');
     expect(paths).toContain('/orders');
+    expect(paths).toContain('/kitchen');
     expect(paths).toContain('/billing');
     expect(paths).toContain('/cash');
     expect(paths).toContain('/reports');
@@ -23,6 +24,7 @@ describe('getNavItems', () => {
     expect(paths).toContain('/dashboard');
     expect(paths).toContain('/orders');
     expect(paths).toContain('/menu');
+    expect(paths).toContain('/kitchen');
     expect(paths).not.toContain('/billing');
     expect(paths).not.toContain('/cash');
     expect(paths).not.toContain('/tables');

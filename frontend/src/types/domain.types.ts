@@ -1,4 +1,4 @@
-export type Role = 'ADMIN' | 'WAITER' | 'COOK' | 'CASHIER';
+export type Role = 'ADMIN' | 'MANAGER' | 'WAITER' | 'COOK' | 'CASHIER';
 
 export interface RoleDto {
   id: string;
@@ -455,4 +455,39 @@ export interface FootfallReportParams {
 
 export interface StaffPlanningReportParams {
   date: string;
+}
+
+export type SupplierStatus = 'ACTIVE' | 'INACTIVE';
+
+export interface SupplierDto {
+  id: string;
+  restaurantId: string;
+  name: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  address: string;
+  taxId: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSupplierBody {
+  name: string;
+  contactName?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  taxId?: string;
+}
+
+export interface UpdateSupplierBody {
+  name?: string;
+  contactName?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  taxId?: string;
+  isActive?: boolean;
 }

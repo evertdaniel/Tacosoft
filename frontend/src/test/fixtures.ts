@@ -25,6 +25,9 @@ import {
   ReportDateRangeParams,
   FootfallReportDto,
   StaffPlanningReportDto,
+  SupplierDto,
+  CreateSupplierBody,
+  UpdateSupplierBody,
 } from '@/types/domain.types';
 
 export const dashboardReportFixture: DashboardReportDto = {
@@ -462,3 +465,68 @@ export const staffPlanningReportFixture: StaffPlanningReportDto = {
     rationale: 'Peak demand occurs during lunch and dinner hours.',
   },
 };
+
+export const suppliersFixture: SupplierDto[] = [
+  {
+    id: 'supplier-1',
+    restaurantId: 'rest-1',
+    name: 'Tortillas Del Norte',
+    contactName: 'Juan Pérez',
+    email: 'juan@tortillas.com',
+    phone: '+56912345678',
+    address: 'Av. Norte 123',
+    taxId: '76.123.456-7',
+    isActive: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'supplier-2',
+    restaurantId: 'rest-1',
+    name: 'Carnes Premium',
+    contactName: 'María González',
+    email: 'maria@carnes.com',
+    phone: '+56987654321',
+    address: 'Calle Sur 456',
+    taxId: '76.987.654-3',
+    isActive: false,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+];
+
+export const activeSuppliersFixture: SupplierDto[] = suppliersFixture.filter((supplier) => supplier.isActive);
+
+export const createSupplierBodyFixture: CreateSupplierBody = {
+  name: 'New Supplier',
+  contactName: 'Pedro López',
+  email: 'pedro@newsupplier.com',
+  phone: '+56911111111',
+  address: 'Av. Central 789',
+  taxId: '76.111.111-1',
+};
+
+export const updateSupplierBodyFixture: UpdateSupplierBody = {
+  name: 'Updated Supplier',
+  contactName: 'Updated Contact',
+  email: 'updated@supplier.com',
+  phone: '+56922222222',
+  address: 'Updated Address 321',
+  taxId: '76.222.222-2',
+};
+
+export function createSupplierFixture(id: string, name: string, isActive = true): SupplierDto {
+  return {
+    id,
+    restaurantId: 'rest-1',
+    name,
+    contactName: 'Contact',
+    email: 'contact@supplier.com',
+    phone: '+56900000000',
+    address: 'Address',
+    taxId: '76.000.000-0',
+    isActive,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  };
+}

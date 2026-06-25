@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import javax.sql.DataSource;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -34,7 +33,14 @@ SELECT
 
         return jdbcTemplate.queryForObject(
                 sql,
-                new BeanPropertyRowMapper<>(DashboardRow.class),
+                (rs, rowNum) -> {
+                    DashboardRow row = new DashboardRow();
+                    row.occupiedTables = rs.getInt("occupied_tables");
+                    row.activeOrders = rs.getInt("active_orders");
+                    row.closedOrdersToday = rs.getInt("closed_orders_today");
+                    row.salesToday = rs.getBigDecimal("sales_today");
+                    return row;
+                },
                 restaurantId,
                 restaurantId,
                 restaurantId,

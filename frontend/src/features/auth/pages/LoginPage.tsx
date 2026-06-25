@@ -1,8 +1,15 @@
+import { Navigate } from 'react-router-dom';
 import { useLogin } from '@/hooks/useLogin';
+import { useAuthStore } from '@/stores/auth.store';
 import { LoginForm } from '../components/LoginForm';
 
 export function LoginPage() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { mutate, isPending, error } = useLogin();
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4">

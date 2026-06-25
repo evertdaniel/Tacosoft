@@ -94,9 +94,9 @@ Each PR includes its own tests under Strict TDD.
 
 ## Success Criteria
 
-- [ ] Users can log in, switch restaurants/roles, and view the dashboard.
-- [ ] Every domain endpoint has a corresponding read or write screen.
-- [ ] All slices include passing Vitest + RTL tests; coverage ≥ 70% per slice.
-- [ ] 401/403 clears storage and redirects to login.
-- [ ] WebSocket events update orders and tables without full page reload.
-- [ ] UI is usable on 320 px mobile and 1440 px desktop.
+- [x] Users can log in, switch restaurants/roles, and view the dashboard.
+- [x] Every domain endpoint has a corresponding read or write screen.
+- [x] All slices include passing Vitest + RTL tests; coverage ≥ 70% per slice.
+- [x] 401/403 clears storage and redirects to login.
+- [x] WebSocket events update orders and tables without full page reload.
+- [x] UI is usable on 320 px mobile and 1440 px desktop.

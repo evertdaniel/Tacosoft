@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { RestaurantInfoDto, RestaurantRoleDto, Role, RoleDto } from '@/types/domain.types';
 
@@ -115,5 +115,60 @@ describe('tenant store', () => {
 
     expect(result.current.currentRestaurantId).toBe('rest-1');
     expect(result.current.currentRole).toEqual(buildRole('ADMIN'));
+  });
+});
+
+describe('tenant store — rehydration from persisted session', () => {
+  beforeEach(() => {
+    Object.keys(mockStorage).forEach((key) => delete mockStorage[key]);
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    Object.keys(mockStorage).forEach((key) => delete mockStorage[key]);
+    vi.resetModules();
+  });
+
+  it('derives currentRestaurantId and currentRole from persisted storage on boot', async () => {
+    // Simulate what auth.store writes after login (persisted session)
+    const roles = buildRestaurantRoles();
+    const currentRestaurant = buildCurrentRestaurant();
+
+    mockStorage['currentRestaurant'] = JSON.stringify(currentRestaurant);
+    mockStorage['restaurantRoles'] = JSON.stringify(roles);
+
+    // Re-import after vi.resetModules() so loadInitialState() runs with the pre-populated storage
+    const { useTenantStore: freshStore } = await import('./tenant.store');
+    const { result } = renderHook(() => freshStore());
+
+    expect(result.current.currentRestaurantId).toBe('rest-1');
+    expect(result.current.currentRole).toEqual(buildRole('ADMIN'));
+    expect(result.current.availableRoles).toEqual(roles);
+  });
+
+  it('leaves currentRestaurantId and currentRole null when no session is persisted', async () => {
+    // No data in mockStorage — cold boot with no prior login
+    const { useTenantStore: freshStore } = await import('./tenant.store');
+    const { result } = renderHook(() => freshStore());
+
+    expect(result.current.currentRestaurantId).toBeNull();
+    expect(result.current.currentRole).toBeNull();
+    expect(result.current.availableRoles).toEqual([]);
+  });
+
+  it('derives currentRestaurantId but sets currentRole null when restaurantRoles has no match for the persisted restaurant', async () => {
+    // currentRestaurant points to rest-3 which is NOT in restaurantRoles
+    const roles = buildRestaurantRoles(); // only rest-1 and rest-2
+    const unknownRestaurant: RestaurantInfoDto = { id: 'rest-3', name: 'Sucursal Sur' };
+
+    mockStorage['currentRestaurant'] = JSON.stringify(unknownRestaurant);
+    mockStorage['restaurantRoles'] = JSON.stringify(roles);
+
+    const { useTenantStore: freshStore } = await import('./tenant.store');
+    const { result } = renderHook(() => freshStore());
+
+    expect(result.current.currentRestaurantId).toBe('rest-3');
+    expect(result.current.currentRole).toBeNull();
+    expect(result.current.availableRoles).toEqual(roles);
   });
 });

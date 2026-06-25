@@ -12,9 +12,17 @@ export interface TenantState {
 
 function loadInitialState(): Pick<TenantState, 'currentRestaurantId' | 'currentRole' | 'availableRoles'> {
   const savedRoles = getItem<RestaurantRoleDto[]>('restaurantRoles');
+  const savedRestaurant = getItem<RestaurantInfoDto>('currentRestaurant');
+
+  const currentRestaurantId = savedRestaurant?.id ?? null;
+  const currentRole =
+    savedRoles && savedRestaurant
+      ? (savedRoles.find((r) => r.restaurantId === savedRestaurant.id)?.role ?? null)
+      : null;
+
   return {
-    currentRestaurantId: null,
-    currentRole: null,
+    currentRestaurantId,
+    currentRole,
     availableRoles: savedRoles ?? [],
   };
 }

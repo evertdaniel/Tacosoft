@@ -171,4 +171,61 @@ describe('tenant store — rehydration from persisted session', () => {
     expect(result.current.currentRole).toBeNull();
     expect(result.current.availableRoles).toEqual(roles);
   });
+
+  it('switchRestaurant persists switched restaurant so a reload rehydrates the new selection', async () => {
+    // Setup: pre-populate storage as if auth.store.setAuth already ran for rest-1
+    const roles = buildRestaurantRoles();
+    const currentRestaurant = buildCurrentRestaurant(); // rest-1
+
+    mockStorage['currentRestaurant'] = JSON.stringify(currentRestaurant);
+    mockStorage['restaurantRoles'] = JSON.stringify(roles);
+
+    // Boot the store so it rehydrates from storage (loadInitialState picks up rest-1)
+    const { useTenantStore: freshStore } = await import('./tenant.store');
+    const { result } = renderHook(() => freshStore());
+
+    expect(result.current.currentRestaurantId).toBe('rest-1');
+
+    // Switch to rest-2 — this should PERSIST currentRestaurant to storage
+    act(() => {
+      result.current.switchRestaurant('rest-2');
+    });
+
+    // Verify in-memory state updated
+    expect(result.current.currentRestaurantId).toBe('rest-2');
+    expect(result.current.currentRole).toEqual(buildRole('WAITER'));
+
+    // Simulate a page reload: reset modules so loadInitialState runs fresh from storage
+    vi.resetModules();
+    const { useTenantStore: reloadedStore } = await import('./tenant.store');
+    const { result: reloaded } = renderHook(() => reloadedStore());
+
+    // After reload, the SWITCHED restaurant (rest-2) must be rehydrated — not the original (rest-1)
+    expect(reloaded.current.currentRestaurantId).toBe('rest-2');
+    expect(reloaded.current.currentRole).toEqual(buildRole('WAITER'));
+  });
+
+  it('switchRestaurant only persists restaurants that exist in the users roles (security guard)', async () => {
+    // Ensure switchRestaurant never persists a restaurant not in availableRoles
+    const roles = buildRestaurantRoles();
+    const currentRestaurant = buildCurrentRestaurant(); // rest-1
+
+    mockStorage['currentRestaurant'] = JSON.stringify(currentRestaurant);
+    mockStorage['restaurantRoles'] = JSON.stringify(roles);
+
+    const { useTenantStore: freshStore } = await import('./tenant.store');
+    const { result } = renderHook(() => freshStore());
+
+    // Attempt switch to a restaurant NOT in the user's roles — must be a no-op
+    act(() => {
+      result.current.switchRestaurant('rest-999');
+    });
+
+    // In-memory state must be unchanged
+    expect(result.current.currentRestaurantId).toBe('rest-1');
+
+    // Storage must still contain rest-1, NOT rest-999
+    const persisted = JSON.parse(mockStorage['currentRestaurant']!) as RestaurantInfoDto;
+    expect(persisted.id).toBe('rest-1');
+  });
 });

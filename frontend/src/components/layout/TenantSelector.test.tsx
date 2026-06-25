@@ -1,8 +1,15 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useTenantStore, resetTenantStore } from '@/stores/tenant.store';
 import { TenantSelector } from './TenantSelector';
+
+// Mock storage so switchRestaurant's persistence does not hit the real (unavailable) localStorage
+vi.mock('@/utils/storage', () => ({
+  getItem: vi.fn(() => null),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+}));
 
 function setupStore(roles: { restaurantId: string; restaurantName: string; roleName: 'ADMIN' | 'WAITER' | 'COOK' | 'CASHIER' }[], currentId: string) {
   const availableRoles = roles.map((r) => ({

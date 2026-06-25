@@ -45,8 +45,18 @@ export const useTenantStore = create<TenantState>((set, get) => ({
 
   switchRestaurant: (restaurantId) => {
     const { availableRoles } = get();
+    // Security: only allow switching to a restaurant that is in the user's own roles list.
+    // This prevents persisting a restaurant the authenticated user has no role for,
+    // which would cause the axios interceptor to send x-restaurant-id for an unauthorized tenant.
     const match = availableRoles.find((r) => r.restaurantId === restaurantId);
     if (!match) return;
+
+    const newCurrentRestaurant: RestaurantInfoDto = {
+      id: match.restaurantId,
+      name: match.restaurantName,
+    };
+
+    setItem('currentRestaurant', newCurrentRestaurant);
 
     set({
       currentRestaurantId: match.restaurantId,

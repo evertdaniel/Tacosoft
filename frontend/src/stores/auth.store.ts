@@ -52,6 +52,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     removeItem('token');
     removeItem('user');
     removeItem('currentRestaurant');
+    removeItem('restaurantRoles');
 
     set({
       token: null,

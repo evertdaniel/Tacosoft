@@ -11,7 +11,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /** Order entity - customer orders. */
 @Entity
-@Table(name = "order")
+@Table(name = "`order`")
 @EntityListeners(AuditingEntityListener.class)
 public class Order extends TenantAware {
 

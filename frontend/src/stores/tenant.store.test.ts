@@ -156,8 +156,10 @@ describe('tenant store — rehydration from persisted session', () => {
     expect(result.current.availableRoles).toEqual([]);
   });
 
-  it('derives currentRestaurantId but sets currentRole null when restaurantRoles has no match for the persisted restaurant', async () => {
-    // currentRestaurant points to rest-3 which is NOT in restaurantRoles
+  it('sets both currentRestaurantId and currentRole to null when restaurantRoles has no match for the persisted restaurant (security guard)', async () => {
+    // currentRestaurant points to rest-3 which is NOT in restaurantRoles —
+    // the store must reject the unmatched restaurant entirely so the interceptor
+    // never sends x-restaurant-id for a tenant the user has no role for.
     const roles = buildRestaurantRoles(); // only rest-1 and rest-2
     const unknownRestaurant: RestaurantInfoDto = { id: 'rest-3', name: 'Sucursal Sur' };
 
@@ -167,8 +169,10 @@ describe('tenant store — rehydration from persisted session', () => {
     const { useTenantStore: freshStore } = await import('./tenant.store');
     const { result } = renderHook(() => freshStore());
 
-    expect(result.current.currentRestaurantId).toBe('rest-3');
+    // Both must be null — an unmatched restaurant id must never reach the interceptor.
+    expect(result.current.currentRestaurantId).toBeNull();
     expect(result.current.currentRole).toBeNull();
+    // availableRoles is still populated so the UI can offer a valid restaurant to switch to.
     expect(result.current.availableRoles).toEqual(roles);
   });
 

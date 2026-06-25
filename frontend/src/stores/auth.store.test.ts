@@ -33,6 +33,7 @@ vi.mock('@/utils/jwt', () => ({
 }));
 
 import { useAuthStore, resetAuthStore } from './auth.store';
+import { useTenantStore, resetTenantStore } from './tenant.store';
 
 const role: Role = 'ADMIN';
 
@@ -64,6 +65,7 @@ describe('auth store', () => {
     Object.keys(mockStorage).forEach((key) => delete mockStorage[key]);
     act(() => {
       resetAuthStore();
+      resetTenantStore();
     });
   });
 
@@ -161,6 +163,50 @@ describe('auth store', () => {
 
     // restaurantRoles must be gone — not just token/user/currentRestaurant
     expect(mockStorage['restaurantRoles']).toBeUndefined();
+  });
+
+  it('logout resets in-memory tenant store so no stale x-restaurant-id can be sent before a reload', () => {
+    // Arrange: set up a live tenant session in memory via the tenant store
+    const roles = [
+      {
+        restaurantId: 'rest-1',
+        restaurantName: 'Taqueria Principal',
+        role: { id: 'role-1', name: role },
+      },
+    ];
+    const currentRestaurant = { id: 'rest-1', name: 'Taqueria Principal', role: 'ADMIN' };
+
+    act(() => {
+      useTenantStore.getState().setTenant(
+        roles.map((r) => ({
+          restaurantId: r.restaurantId,
+          restaurantName: r.restaurantName,
+          role: r.role,
+        })),
+        currentRestaurant,
+      );
+    });
+
+    // Confirm tenant store is populated before logout
+    expect(useTenantStore.getState().currentRestaurantId).toBe('rest-1');
+    expect(useTenantStore.getState().availableRoles).toHaveLength(1);
+
+    const login = buildLoginResponse('valid-token');
+    const { result } = renderHook(() => useAuthStore());
+
+    act(() => {
+      result.current.setAuth(login);
+    });
+
+    // Act: call logout — must reset tenant store in-memory WITHOUT requiring a page reload
+    act(() => {
+      result.current.logout();
+    });
+
+    // Assert: tenant in-memory state is cleared immediately (no reload needed)
+    expect(useTenantStore.getState().currentRestaurantId).toBeNull();
+    expect(useTenantStore.getState().currentRole).toBeNull();
+    expect(useTenantStore.getState().availableRoles).toHaveLength(0);
   });
 });
 

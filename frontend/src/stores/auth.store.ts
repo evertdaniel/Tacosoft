@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { LoginResponse, RestaurantInfoDto, UserDto } from '@/types/domain.types';
 import { decodeExp } from '@/utils/jwt';
 import { getItem, removeItem, setItem } from '@/utils/storage';
+import { resetTenantStore } from '@/stores/tenant.store';
 
 export interface AuthState {
   token: string | null;
@@ -53,6 +54,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     removeItem('user');
     removeItem('currentRestaurant');
     removeItem('restaurantRoles');
+
+    // Reset in-memory tenant state immediately so the Axios interceptor cannot
+    // read a stale currentRestaurantId between the logout call and the page redirect.
+    resetTenantStore();
 
     set({
       token: null,

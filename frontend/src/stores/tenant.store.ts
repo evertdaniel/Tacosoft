@@ -14,11 +14,17 @@ function loadInitialState(): Pick<TenantState, 'currentRestaurantId' | 'currentR
   const savedRoles = getItem<RestaurantRoleDto[]>('restaurantRoles');
   const savedRestaurant = getItem<RestaurantInfoDto>('currentRestaurant');
 
-  const currentRestaurantId = savedRestaurant?.id ?? null;
-  const currentRole =
+  // Security: only rehydrate currentRestaurantId when the persisted restaurant has a
+  // matching entry in savedRoles. Without this check, tampered or inconsistent storage
+  // could cause the Axios interceptor to send x-restaurant-id for a tenant the user
+  // has no role for.
+  const matchedRole =
     savedRoles && savedRestaurant
-      ? (savedRoles.find((r) => r.restaurantId === savedRestaurant.id)?.role ?? null)
-      : null;
+      ? savedRoles.find((r) => r.restaurantId === savedRestaurant.id)
+      : undefined;
+
+  const currentRestaurantId = matchedRole ? matchedRole.restaurantId : null;
+  const currentRole = matchedRole ? matchedRole.role : null;
 
   return {
     currentRestaurantId,
